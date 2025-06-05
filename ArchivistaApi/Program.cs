@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using ArchivistaApi.Data;
+using ArchivistaApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ArchivistaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Register application services
+builder.Services.AddApplicationServices();
 
 builder.Services.AddControllers();
 

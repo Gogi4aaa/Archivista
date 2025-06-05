@@ -9,7 +9,7 @@ public class Artifact
 
     [Required]
     [MaxLength(200)]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } =  null!;
 
     [MaxLength(2000)]
     public string? Description { get; set; }
@@ -19,7 +19,7 @@ public class Artifact
 
     [Required]
     [MaxLength(200)]
-    public string DiscoveryLocation { get; set; } = string.Empty;
+    public string DiscoveryLocation { get; set; } = null!;
 
     [MaxLength(100)]
     public string? Period { get; set; }
