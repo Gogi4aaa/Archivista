@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchivistaApi", "ArchivistaApi\ArchivistaApi.csproj", "{BE866BC9-F751-3E4E-151D-E675976F5BB8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE866BC9-F751-3E4E-151D-E675976F5BB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE866BC9-F751-3E4E-151D-E675976F5BB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE866BC9-F751-3E4E-151D-E675976F5BB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE866BC9-F751-3E4E-151D-E675976F5BB8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2F64CFC1-ADF9-40F1-906D-CC57FA805A2B}
+	EndGlobalSection
+EndGlobal
