@@ -26,12 +26,29 @@ public class ArchivistaContext : DbContext
             entity.Property(e => e.Name).IsRequired();
             entity.Property(e => e.DiscoveryDate).IsRequired();
             entity.Property(e => e.DiscoveryLocation).IsRequired();
+
+            // Configure the relationship with User (Creator)
+            entity.HasOne(a => a.Creator)
+                .WithMany(u => u.Artifacts)
+                .HasForeignKey(a => a.CreatorId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+
+            // Configure CreatorId as UUID
+            entity.Property(e => e.CreatorId)
+                .HasColumnType("uuid");
         });
 
         // Configure the User entity
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id);
+            
+            // Configure Id as UUID with default value from PostgreSQL
+            entity.Property(e => e.Id)
+                .HasColumnType("uuid")
+                .HasDefaultValueSql("gen_random_uuid()")
+                .ValueGeneratedOnAdd();
+
             entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
             entity.Property(e => e.PasswordHash).IsRequired();
@@ -51,6 +68,10 @@ public class ArchivistaContext : DbContext
         modelBuilder.Entity<UserRole>(entity =>
         {
             entity.HasKey(e => new { e.UserId, e.RoleId });
+
+            // Configure UserId as UUID
+            entity.Property(e => e.UserId)
+                .HasColumnType("uuid");
 
             entity.HasOne(ur => ur.User)
                 .WithMany(u => u.UserRoles)

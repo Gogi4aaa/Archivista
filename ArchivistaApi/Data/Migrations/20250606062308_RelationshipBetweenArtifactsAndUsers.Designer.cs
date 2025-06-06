@@ -3,6 +3,7 @@ using System;
 using ArchivistaApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ArchivistaApi.Migrations
 {
     [DbContext(typeof(ArchivistaContext))]
-    partial class ArchivistaContextModelSnapshot : ModelSnapshot
+    [Migration("20250606062308_RelationshipBetweenArtifactsAndUsers")]
+    partial class RelationshipBetweenArtifactsAndUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,8 +36,8 @@ namespace ArchivistaApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("CreatorId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("CreatorId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasMaxLength(2000)
@@ -135,10 +138,11 @@ namespace ArchivistaApi.Migrations
 
             modelBuilder.Entity("ArchivistaApi.Models.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasDefaultValueSql("gen_random_uuid()");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -184,8 +188,8 @@ namespace ArchivistaApi.Migrations
 
             modelBuilder.Entity("ArchivistaApi.Models.UserRole", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
@@ -200,9 +204,9 @@ namespace ArchivistaApi.Migrations
             modelBuilder.Entity("ArchivistaApi.Models.Artifact", b =>
                 {
                     b.HasOne("ArchivistaApi.Models.User", "Creator")
-                        .WithMany("Artifacts")
+                        .WithMany()
                         .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Creator");
@@ -234,8 +238,6 @@ namespace ArchivistaApi.Migrations
 
             modelBuilder.Entity("ArchivistaApi.Models.User", b =>
                 {
-                    b.Navigation("Artifacts");
-
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

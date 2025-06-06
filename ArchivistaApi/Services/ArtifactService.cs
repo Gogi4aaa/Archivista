@@ -18,6 +18,7 @@ namespace ArchivistaApi.Services
         public async Task<IEnumerable<Artifact>> GetByLocationAsync(string location)
         {
             return await _dbSet
+                .Include(a => a.Creator)
                 .Where(a => a.DiscoveryLocation.Contains(location))
                 .OrderByDescending(a => a.DiscoveryDate)
                 .ToListAsync();
@@ -29,6 +30,7 @@ namespace ArchivistaApi.Services
                 return await GetAllAsync();
 
             return await _dbSet
+                .Include(a => a.Creator)
                 .Where(a => a.Name.Contains(searchTerm))
                 .OrderBy(a => a.Name)
                 .ToListAsync();
@@ -41,8 +43,18 @@ namespace ArchivistaApi.Services
             endDate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
 
             return await _dbSet
+                .Include(a => a.Creator)
                 .Where(a => a.DiscoveryDate >= startDate && a.DiscoveryDate <= endDate)
                 .OrderByDescending(a => a.DiscoveryDate)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Artifact>> GetByCreatorIdAsync(Guid creatorId)
+        {
+            return await _dbSet
+                .Include(a => a.Creator)
+                .Where(a => a.CreatorId == creatorId)
+                .OrderByDescending(a => a.CreatedAt)
                 .ToListAsync();
         }
 
@@ -50,8 +62,16 @@ namespace ArchivistaApi.Services
         public override async Task<IEnumerable<Artifact>> GetAllAsync()
         {
             return await _dbSet
+                .Include(a => a.Creator)
                 .OrderByDescending(a => a.DiscoveryDate)
                 .ToListAsync();
+        }
+
+        public override async Task<Artifact> GetByIdAsync(int id)
+        {
+            return await _dbSet
+                .Include(a => a.Creator)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public override async Task<Artifact> CreateAsync(Artifact artifact)
@@ -66,6 +86,11 @@ namespace ArchivistaApi.Services
                 artifact.DiscoveryDate = DateTime.SpecifyKind(artifact.DiscoveryDate, DateTimeKind.Utc);
             }
 
+            // Verify that the Creator exists
+            var creator = await _context.Set<User>().FindAsync(artifact.CreatorId);
+            if (creator == null)
+                throw new InvalidOperationException($"User with ID {artifact.CreatorId} not found.");
+
             return await base.CreateAsync(artifact);
         }
 
@@ -77,6 +102,10 @@ namespace ArchivistaApi.Services
 
             // Ensure DiscoveryDate is in UTC
             artifact.DiscoveryDate = DateTime.SpecifyKind(artifact.DiscoveryDate, DateTimeKind.Utc);
+
+            // Preserve the original creator
+            artifact.CreatorId = existingArtifact.CreatorId;
+            artifact.Creator = existingArtifact.Creator;
 
             return await base.UpdateAsync(artifact);
         }

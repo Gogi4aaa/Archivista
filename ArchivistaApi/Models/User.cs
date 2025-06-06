@@ -5,7 +5,14 @@ namespace ArchivistaApi.Models
 {
     public class User
     {
-        public int Id { get; set; }
+        public User()
+        {
+            Id = Guid.NewGuid(); // Initialize with a new GUID
+            Artifacts = new List<Artifact>();
+            UserRoles = new List<UserRole>();
+        }
+
+        public Guid Id { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
@@ -16,6 +23,7 @@ namespace ArchivistaApi.Models
         public bool IsActive { get; set; }
         
         // Navigation properties
+        public ICollection<Artifact> Artifacts { get; set; }
         public ICollection<UserRole> UserRoles { get; set; }
     }
 } 

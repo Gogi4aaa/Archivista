@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations.Schema;
+using ArchivistaApi.Models;
 namespace ArchivistaApi.Models;
 
 public class Artifact
@@ -42,6 +43,12 @@ public class Artifact
     public string? StorageLocation { get; set; }
 
     public string? PhotoUrl { get; set; }
+
+    [Required]
+    public Guid CreatorId { get; set; }
+
+    [ForeignKey(nameof(CreatorId))]
+    public User Creator { get; set; } = null!;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
