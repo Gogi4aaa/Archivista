@@ -25,7 +25,7 @@ public class Artifact
     public string? Period { get; set; }
 
     [MaxLength(100)]
-    public string? Culture { get; set; }
+    public string? Type { get; set; }
 
     [MaxLength(100)]
     public string? Material { get; set; }

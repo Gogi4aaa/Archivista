@@ -9,7 +9,7 @@ builder.Services.AddDbContext<ArchivistaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Register application services
-builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices(builder.Configuration);
 
 builder.Services.AddControllers();
 
@@ -43,6 +43,8 @@ if (app.Environment.IsDevelopment())
 // Use CORS
 app.UseCors("AllowAll");
 
+// Add authentication & authorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
