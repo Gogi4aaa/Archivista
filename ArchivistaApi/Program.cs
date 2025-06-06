@@ -12,9 +12,14 @@ if (builder.Environment.IsDevelopment())
 }
 
 // Configure strongly typed settings
-var appSecrets = new AppSecrets();
-builder.Configuration.GetSection("Database").Bind(appSecrets.Database);
-builder.Configuration.GetSection("Jwt").Bind(appSecrets.Jwt);
+var appSecrets = builder.Configuration.Get<AppSecrets>();
+if (appSecrets == null)
+{
+    throw new InvalidOperationException("Application secrets configuration is missing or invalid.");
+}
+
+// Register AppSecrets as a service
+builder.Services.AddSingleton(appSecrets);
 
 // Add services to the container.
 builder.Services.AddDbContext<ArchivistaContext>(options =>
