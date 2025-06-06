@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ArchivistaApi.Data;
 using ArchivistaApi.Services;
 using ArchivistaApi.Config;
+using ArchivistaApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,8 +26,14 @@ builder.Services.AddSingleton(appSecrets);
 builder.Services.AddDbContext<ArchivistaContext>(options =>
     options.UseNpgsql(appSecrets.Database.GetConnectionString()));
 
+// Register DatabaseSeeder
+builder.Services.AddScoped<DatabaseSeeder>();
+
 // Register application services
 builder.Services.AddApplicationServices(builder.Configuration);
+
+// Register UserService
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
 
@@ -47,6 +54,23 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+// Seed the database
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var seeder = services.GetRequiredService<DatabaseSeeder>();
+        await seeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while seeding the database.");
+        throw; // Re-throw the exception if you want to prevent the app from starting with an unseeded database
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
