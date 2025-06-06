@@ -9,7 +9,7 @@ using ArchivistaApi.Services.Interfaces;
 
 namespace ArchivistaApi.Services
 {
-    public class ArtifactService : BaseService<Artifact, int>, IArtifactService
+    public class ArtifactService : BaseService<Artifact, Guid>, IArtifactService
     {
         public ArtifactService(ArchivistaContext context) : base(context)
         {
@@ -67,7 +67,7 @@ namespace ArchivistaApi.Services
                 .ToListAsync();
         }
 
-        public override async Task<Artifact> GetByIdAsync(int id)
+        public override async Task<Artifact> GetByIdAsync(Guid id)
         {
             return await _dbSet
                 .Include(a => a.Creator)

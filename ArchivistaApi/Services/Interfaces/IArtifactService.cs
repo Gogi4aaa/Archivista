@@ -5,7 +5,7 @@ using ArchivistaApi.Models;
 
 namespace ArchivistaApi.Services.Interfaces
 {
-    public interface IArtifactService : IBaseService<Artifact, int>
+    public interface IArtifactService : IBaseService<Artifact, Guid>
     {
         // Add any artifact-specific methods beyond basic CRUD here
         Task<IEnumerable<Artifact>> GetByLocationAsync(string location);

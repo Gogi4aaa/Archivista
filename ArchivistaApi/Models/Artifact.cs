@@ -6,7 +6,12 @@ namespace ArchivistaApi.Models;
 
 public class Artifact
 {
-    public int Id { get; set; }
+    public Artifact()
+    {
+        Id = Guid.NewGuid();
+    }
+
+    public Guid Id { get; set; }
 
     [Required]
     [MaxLength(200)]

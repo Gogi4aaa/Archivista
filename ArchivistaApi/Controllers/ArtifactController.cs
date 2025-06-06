@@ -28,7 +28,7 @@ namespace ArchivistaApi.Controllers
 
         // GET: api/Artifact/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Artifact>> GetById(int id)
+        public async Task<ActionResult<Artifact>> GetById(Guid id)
         {
             var artifact = await _artifactService.GetByIdAsync(id);
             if (artifact == null)
@@ -50,7 +50,7 @@ namespace ArchivistaApi.Controllers
 
         // PUT: api/Artifact/5
         [HttpPut("{id}")]
-        public async Task<ActionResult<Artifact>> Update(int id, [FromBody] Artifact artifact)
+        public async Task<ActionResult<Artifact>> Update(Guid id, [FromBody] Artifact artifact)
         {
             if (id != artifact.Id)
                 return BadRequest("ID mismatch");
@@ -71,7 +71,7 @@ namespace ArchivistaApi.Controllers
 
         // DELETE: api/Artifact/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete(Guid id)
         {
             var result = await _artifactService.DeleteAsync(id);
             if (!result)
