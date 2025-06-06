@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArchivistaApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+66f06096f675931f804f42864d187e491cc6378c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4fc6d0d67659d29cf40c172ede8c5810d49bc9f7")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArchivistaApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArchivistaApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

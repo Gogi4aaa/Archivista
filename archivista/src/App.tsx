@@ -1,52 +1,29 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
-// Example components for different routes
-const Home = () => (
-  <div>
-    <h1>Welcome to Archivista</h1>
-    <p>Your personal document management system</p>
-  </div>
-);
+// Layout Components
+import Sidebar from './components/Sidebar';
+import TopBar from './components/TopBar';
 
-const Documents = () => (
-  <div>
-    <h1>Documents</h1>
-    <p>Your documents will appear here</p>
-  </div>
-);
-
-const Settings = () => (
-  <div>
-    <h1>Settings</h1>
-    <p>Application settings and preferences</p>
-  </div>
-);
+// Page Components
+import Home from './components/pages/Home';
+import Documents from './components/pages/Documents';
+import Settings from './components/pages/Settings';
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <nav>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/documents">Documents</Link>
-            </li>
-            <li>
-              <Link to="/settings">Settings</Link>
-            </li>
-          </ul>
-        </nav>
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/documents" element={<Documents />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
+        <Sidebar />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+          <TopBar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/documents" element={<Documents />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );
