@@ -1,12 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using ArchivistaApi.Data;
 using ArchivistaApi.Services;
+using ArchivistaApi.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure secrets
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
+// Configure strongly typed settings
+var appSecrets = new AppSecrets();
+builder.Configuration.GetSection("Database").Bind(appSecrets.Database);
+builder.Configuration.GetSection("Jwt").Bind(appSecrets.Jwt);
+
 // Add services to the container.
 builder.Services.AddDbContext<ArchivistaContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(appSecrets.Database.GetConnectionString()));
 
 // Register application services
 builder.Services.AddApplicationServices(builder.Configuration);

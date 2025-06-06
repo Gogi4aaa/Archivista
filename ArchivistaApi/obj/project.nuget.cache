@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "wg94I6i5TNg=",
+  "dgSpecHash": "ezzOkKr1wfw=",
   "success": true,
   "projectFilePath": "/Users/gogi4a/Documents/Archivista/ArchivistaApi/ArchivistaApi.csproj",
   "expectedPackageFiles": [
+    "/Users/gogi4a/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/Users/gogi4a/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/Users/gogi4a/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/9.0.5/microsoft.aspnetcore.authentication.jwtbearer.9.0.5.nupkg.sha512",
     "/Users/gogi4a/.nuget/packages/microsoft.aspnetcore.openapi/9.0.5/microsoft.aspnetcore.openapi.9.0.5.nupkg.sha512",

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ArchivistaApi.Data;
@@ -16,6 +14,7 @@ namespace ArchivistaApi.Services
     {
         private readonly ArchivistaContext _context;
         private readonly JwtService _jwtService;
+        private const int WORK_FACTOR = 12; // BCrypt work factor, higher is more secure but slower
 
         public AuthService(ArchivistaContext context, JwtService jwtService)
         {
@@ -101,15 +100,12 @@ namespace ArchivistaApi.Services
 
         private static string HashPassword(string password)
         {
-            using var sha256 = SHA256.Create();
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(hashedBytes);
+            return BCrypt.Net.BCrypt.HashPassword(password, WORK_FACTOR);
         }
 
         private static bool VerifyPassword(string password, string hash)
         {
-            var hashedPassword = HashPassword(password);
-            return hashedPassword == hash;
+            return BCrypt.Net.BCrypt.Verify(password, hash);
         }
     }
 } 

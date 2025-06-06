@@ -91,4 +91,15 @@ wheels/
 
 # Environment variables
 .env*
-!.env.example 
+!.env.example
+
+# .NET Secrets
+*.user
+*.userosscache
+*.userprefs
+*.usertasks
+*.userstate
+*.usersecrets
+appsettings.*.json
+!appsettings.json
+!appsettings.Example.json 
