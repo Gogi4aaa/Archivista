@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Artifact } from '../../types/Artifact';
 import ArtifactView from '../artifact/ArtifactView';
+import Pagination from '../common/Pagination';
 import '../artifact/ArtifactView.css';
 import './Documents.css';
 
@@ -67,14 +68,32 @@ const exampleArtifact: Artifact = {
 const Documents = () => {
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'detail'>('grid');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<'date' | 'type' | 'title'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   // For demo purposes, we'll create an array of artifacts
-  const artifacts = Array(6).fill(null).map((_, index) => ({
+  const artifacts = Array(16).fill(null).map((_, index) => ({
     ...exampleArtifact,
     id: String(index + 1),
     title: `${exampleArtifact.title} ${index + 1}`,
     featured: index % 3 === 0
   }));
+
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(artifacts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentArtifacts = artifacts.slice(startIndex, endIndex);
+
+  const handleSort = (type: 'date' | 'type' | 'title') => {
+    if (sortBy === type) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(type);
+      setSortOrder('asc');
+    }
+  };
 
   if (viewMode === 'detail' && selectedArtifact) {
     return (
@@ -97,14 +116,41 @@ const Documents = () => {
 
   return (
     <div className="content">
-      <div className="actions-container">
-        <button className="button">Add New</button>
-        <button className="button secondary">Sort by Date</button>
-        <button className="button secondary">Sort by Type</button>
+      <div className="toolbar">
+        <div className="toolbar-main">
+          <button className="button">
+            <span className="button-icon">+</span>
+            Add New Artifact
+          </button>
+          <div className="toolbar-divider" />
+          <div className="sort-buttons">
+            <button 
+              className={`button secondary ${sortBy === 'date' ? 'active' : ''}`}
+              onClick={() => handleSort('date')}
+            >
+              Date {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button 
+              className={`button secondary ${sortBy === 'type' ? 'active' : ''}`}
+              onClick={() => handleSort('type')}
+            >
+              Type {sortBy === 'type' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+            <button 
+              className={`button secondary ${sortBy === 'title' ? 'active' : ''}`}
+              onClick={() => handleSort('title')}
+            >
+              Title {sortBy === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}
+            </button>
+          </div>
+        </div>
+        <div className="toolbar-meta">
+          Showing {startIndex + 1}-{Math.min(endIndex, artifacts.length)} of {artifacts.length} artifacts
+        </div>
       </div>
       
       <div className="artifacts-grid">
-        {artifacts.map(artifact => (
+        {currentArtifacts.map(artifact => (
           <div 
             key={artifact.id} 
             className="artifact-card"
@@ -144,6 +190,12 @@ const Documents = () => {
           </div>
         ))}
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 };
