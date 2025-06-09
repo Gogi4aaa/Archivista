@@ -1,0 +1,103 @@
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { AuthState, LoginCredentials, User, ValidationError} from '../types/Auth';
+import { authService } from '../services/authService';
+
+interface AuthContextType extends AuthState {
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const validateCredentials = (credentials: LoginCredentials): ValidationError | null => {
+  const errors: ValidationError = {};
+  
+  // Email validation
+  if (!credentials.email) {
+    errors.email = 'Email is required';
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(credentials.email)) {
+    errors.email = 'Invalid email address';
+  }
+  
+  // Password validation
+  if (!credentials.password) {
+    errors.password = 'Password is required';
+  } else if (credentials.password.length < 6) {
+    errors.password = 'Password must be at least 6 characters';
+  }
+  
+  return Object.keys(errors).length > 0 ? errors : null;
+};
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [authState, setAuthState] = useState<AuthState>({
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+  });
+
+  const login = useCallback(async (credentials: LoginCredentials) => {
+    setAuthState(prev => ({ ...prev, isLoading: true }));
+    
+    try {
+      // Validate credentials
+      const validationErrors = validateCredentials(credentials);
+      if (validationErrors) {
+        throw { type: 'VALIDATION_ERROR', errors: validationErrors };
+      }
+
+      // Make API call
+      const user = await authService.login(credentials);
+      
+      // Login successful
+      setAuthState({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+      
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+      throw error;
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        ...authState,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}; 
