@@ -5,6 +5,7 @@ import Pagination from '../common/Pagination';
 import '../artifact/ArtifactView.css';
 import './Documents.css';
 import toast from 'react-hot-toast';
+import axios from 'axios';
 
 interface FormErrors {
   [key: string]: string;
@@ -30,8 +31,9 @@ const Documents = () => {
     location: {
       site: '',
     },
-    condition: 'Good' as const,
-    category: [],
+    condition: 'Good',
+    category: ['Artifact'],
+    image: undefined,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -127,7 +129,7 @@ const Documents = () => {
       newErrors.condition = 'Condition is required';
     }
     
-    if (!formData.category || formData.category.length === 0) {
+    if (!formData.category.length) {
       newErrors.category = 'At least one category is required';
     }
 
@@ -143,8 +145,9 @@ const Documents = () => {
       location: {
         site: '',
       },
-      condition: 'Good' as const,
-      category: [],
+      condition: 'Good',
+      category: ['Artifact'],
+      image: undefined,
     });
     setSelectedImage(null);
     setImagePreview(null);
@@ -169,11 +172,14 @@ const Documents = () => {
       toast.success('Artifact created successfully');
       setIsFormOpen(false);
       resetForm();
-      // Refresh the artifacts list
       await fetchArtifacts();
     } catch (error) {
-      toast.error('Failed to create artifact');
       console.error('Error creating artifact:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(`Failed to create artifact: ${error.response.data.message || error.response.data.title || 'Unknown error'}`);
+      } else {
+        toast.error('Failed to create artifact');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -182,12 +188,7 @@ const Documents = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    if (name === 'category') {
-      setFormData(prev => ({
-        ...prev,
-        category: value.split(',').map(cat => cat.trim())
-      }));
-    } else if (name === 'site') {
+    if (name === 'site') {
       setFormData(prev => ({
         ...prev,
         location: {
@@ -374,20 +375,6 @@ const Documents = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="category">Categories* (comma-separated)</label>
-                <input
-                  type="text"
-                  id="category"
-                  name="category"
-                  value={formData.category.join(', ')}
-                  onChange={handleChange}
-                  className={errors.category ? 'error' : ''}
-                  placeholder="e.g. Pottery, Ritual Objects"
-                />
-                {errors.category && <span className="error-message">{errors.category}</span>}
-              </div>
-
-              <div className="form-group">
                 <label htmlFor="description">Description</label>
                 <textarea
                   id="description"
@@ -411,6 +398,17 @@ const Documents = () => {
               </div>
 
               <div className="form-group">
+                <label htmlFor="period">Period</label>
+                <input
+                  type="text"
+                  id="period"
+                  name="period"
+                  value={formData.period}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
                 <label htmlFor="condition">Condition*</label>
                 <select
                   id="condition"
@@ -419,7 +417,6 @@ const Documents = () => {
                   onChange={handleChange}
                   className={errors.condition ? 'error' : ''}
                 >
-                  <option value="">Select condition</option>
                   <option value="Excellent">Excellent</option>
                   <option value="Good">Good</option>
                   <option value="Fair">Fair</option>
@@ -429,25 +426,34 @@ const Documents = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="period">Period</label>
-                <input
-                  type="text"
-                  id="period"
-                  name="period"
-                  value={formData.period}
-                  onChange={handleChange}
-                  placeholder="e.g. Late Bronze Age"
-                />
+                <label htmlFor="category">Category*</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category[0]}
+                  onChange={(e) => setFormData(prev => ({ ...prev, category: [e.target.value] }))}
+                  className={errors.category ? 'error' : ''}
+                >
+                  <option value="Artifact">Artifact</option>
+                  <option value="Tool">Tool</option>
+                  <option value="Pottery">Pottery</option>
+                  <option value="Jewelry">Jewelry</option>
+                  <option value="Weapon">Weapon</option>
+                  <option value="Document">Document</option>
+                  <option value="Other">Other</option>
+                </select>
+                {errors.category && <span className="error-message">{errors.category}</span>}
               </div>
 
               <div className="form-actions">
-                <button type="submit" className="button">
-                  Create Artifact
+                <button type="submit" className="button" disabled={isLoading}>
+                  {isLoading ? 'Creating...' : 'Create Artifact'}
                 </button>
                 <button 
                   type="button" 
                   className="button secondary"
                   onClick={() => setIsFormOpen(false)}
+                  disabled={isLoading}
                 >
                   Cancel
                 </button>

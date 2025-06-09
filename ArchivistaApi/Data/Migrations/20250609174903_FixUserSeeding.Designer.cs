@@ -3,6 +3,7 @@ using System;
 using ArchivistaApi.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ArchivistaApi.Migrations
 {
     [DbContext(typeof(ArchivistaContext))]
-    partial class ArchivistaContextModelSnapshot : ModelSnapshot
+    [Migration("20250609174903_FixUserSeeding")]
+    partial class FixUserSeeding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,6 +185,30 @@ namespace ArchivistaApi.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "system@archivista.local",
+                            FirstName = "System",
+                            IsActive = true,
+                            LastName = "User",
+                            PasswordHash = "AQAAAAIAAYagAAAAELPkgKoqz3wMcc9dKrNxH+b2UxwJKxf6dYZnHhqZ8EZF9zj+0oMAXYHgfGKppXQpqg==",
+                            Username = "system"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "georgi.dimitrov@archivista.local",
+                            FirstName = "Georgi",
+                            IsActive = true,
+                            LastName = "Dimitrov",
+                            PasswordHash = "AQAAAAIAAYagAAAAELPkgKoqz3wMcc9dKrNxH+b2UxwJKxf6dYZnHhqZ8EZF9zj+0oMAXYHgfGKppXQpqg==",
+                            Username = "georgi"
+                        });
                 });
 
             modelBuilder.Entity("ArchivistaApi.Models.UserRole", b =>
@@ -197,6 +224,18 @@ namespace ArchivistaApi.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            UserId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            RoleId = 2
+                        });
                 });
 
             modelBuilder.Entity("ArchivistaApi.Models.Artifact", b =>

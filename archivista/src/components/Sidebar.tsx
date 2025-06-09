@@ -21,18 +21,18 @@ const Sidebar = () => {
     <aside className="sidebar">
       <nav className="nav">
         <div className="nav-links">
-          {sidebarLinks.map(link => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                'nav-link' + (isActive ? ' active' : '')
-              }
-              end={link.to === '/'}
-            >
-              <span style={{ marginRight: 12 }}>{link.icon}</span> {link.label}
-            </NavLink>
-          ))}
+        {sidebarLinks.map(link => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            className={({ isActive }) =>
+              'nav-link' + (isActive ? ' active' : '')
+            }
+            end={link.to === '/'}
+          >
+            <span style={{ marginRight: 12 }}>{link.icon}</span> {link.label}
+          </NavLink>
+        ))}
         </div>
         <button 
           onClick={handleLogout}

@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:5075/api'; // adjust this to match your API UR
 
 export interface CreateArtifactDto {
   title: string;
-  description: string;
+  description?: string;
   period?: string;
   location: {
     site: string;
@@ -14,7 +14,7 @@ export interface CreateArtifactDto {
       longitude: number;
     }
   };
-  condition: 'Excellent' | 'Good' | 'Fair' | 'Poor';
+  condition: string;
   category: string[];
   image?: File;
 }
@@ -30,12 +30,25 @@ export const artifactService = {
 
   createArtifact: async (artifact: CreateArtifactDto): Promise<Artifact> => {
     const formData = new FormData();
+    
+    // Add all fields to FormData
     Object.entries(artifact).forEach(([key, value]) => {
       if (key === 'image' && value instanceof File) {
         formData.append('image', value);
-      } else if (typeof value === 'object') {
-        formData.append(key, JSON.stringify(value));
-      } else {
+      } else if (key === 'location') {
+        // Handle location object
+        formData.append('location.site', value.site);
+        if (value.coordinates) {
+          formData.append('location.coordinates.latitude', String(value.coordinates.latitude));
+          formData.append('location.coordinates.longitude', String(value.coordinates.longitude));
+        }
+      } else if (key === 'category' && Array.isArray(value)) {
+        // Handle category array
+        value.forEach((cat, index) => {
+          formData.append(`category[${index}]`, cat);
+        });
+      } else if (value !== undefined && value !== null) {
+        // Only append if value is not undefined or null
         formData.append(key, String(value));
       }
     });
