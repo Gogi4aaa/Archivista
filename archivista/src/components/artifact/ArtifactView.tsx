@@ -1,22 +1,41 @@
-import React from 'react';
-import { Artifact } from '../../types/Artifact';
+import React, { useState } from 'react';
+import './ArtifactView.css';
 
 interface ArtifactViewProps {
-  artifact: Artifact;
+  artifact: {
+    Id: string;
+    Name: string;
+    Description?: string;
+    DiscoveryDate: string;
+    DiscoveryLocation: string;
+    Period?: string;
+    Type?: string;
+    Material?: string;
+    Weight?: number;
+    Height?: number;
+    Width?: number;
+    Length?: number;
+    StorageLocation?: string;
+    CreatorId: string;
+    CreatedAt: string;
+    UpdatedAt?: string;
+    ImageUrl?: string | null;
+  };
 }
 
+const baseUrl = 'http://localhost:5075';
+
 const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
-  const primaryImage = artifact.images.find(img => img.type === 'primary');
+  const [imageError, setImageError] = useState(false);
 
   return (
     <div className="artifact-view">
       <div className="artifact-header">
         <div className="artifact-title-section">
-          <h1>{artifact.title}</h1>
+          <h1>{artifact.Name}</h1>
           <div className="artifact-metadata">
-            <span className="period">{artifact.period}</span>
-            <span className="status">{artifact.status}</span>
-            {artifact.featured && <span className="featured">Featured</span>}
+            <span className="period">{artifact.Period}</span>
+            <span className="status">{artifact.Type}</span>
           </div>
         </div>
       </div>
@@ -24,31 +43,18 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
       <div className="artifact-content">
         <div className="artifact-main">
           <div className="artifact-image-section">
-            {primaryImage && (
-              <img 
-                src={primaryImage.url} 
-                alt={primaryImage.caption || artifact.title}
-                className="primary-image" 
-              />
-            )}
-            <div className="image-gallery">
-              {artifact.images
-                .filter(img => img.type !== 'primary')
-                .map((img, index) => (
-                  <img 
-                    key={index}
-                    src={img.url}
-                    alt={img.caption || `${artifact.title} detail ${index + 1}`}
-                    className="gallery-image"
-                  />
-                ))}
-            </div>
+            <img
+              src={!imageError && artifact.ImageUrl ? `${baseUrl}${artifact.ImageUrl}` : '/noimage.png'}
+              alt={artifact.Name}
+              className="primary-image"
+              onError={() => setImageError(true)}
+            />
           </div>
 
           <div className="artifact-details">
             <section className="description">
               <h2>Description</h2>
-              <p>{artifact.description}</p>
+              <p>{artifact.Description}</p>
             </section>
 
             <section className="physical-details">
@@ -56,54 +62,33 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
               <div className="details-grid">
                 <div className="detail-item">
                   <label>Dimensions</label>
-                  <span>{`${artifact.dimensions.height}×${artifact.dimensions.width}×${artifact.dimensions.depth} ${artifact.dimensions.unit}`}</span>
+                  <span>
+                    H: {artifact.Height}, W: {artifact.Width}, L: {artifact.Length}
+                  </span>
                 </div>
                 <div className="detail-item">
                   <label>Weight</label>
-                  <span>{`${artifact.weight.value} ${artifact.weight.unit}`}</span>
+                  <span>{artifact.Weight}</span>
                 </div>
                 <div className="detail-item">
                   <label>Material</label>
-                  <span>{artifact.material.join(', ')}</span>
-                </div>
-                <div className="detail-item">
-                  <label>Condition</label>
-                  <span>{artifact.condition}</span>
+                  <span>{artifact.Material}</span>
                 </div>
               </div>
-            </section>
-
-            <section className="conservation">
-              <h2>Conservation</h2>
-              <div className="conservation-status">
-                <span className={`status-badge ${artifact.conservation.status.toLowerCase().replace(' ', '-')}`}>
-                  {artifact.conservation.status}
-                </span>
-                {artifact.conservation.lastChecked && (
-                  <span className="last-checked">
-                    Last checked: {new Date(artifact.conservation.lastChecked).toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-              {artifact.conservation.notes && (
-                <p className="conservation-notes">{artifact.conservation.notes}</p>
-              )}
             </section>
           </div>
         </div>
 
         <div className="artifact-sidebar">
           <section className="location-info">
-            <h3>Location</h3>
+            <h3>Discovery Details</h3>
             <div className="info-group">
-              <label>Found at</label>
-              <span>{artifact.location.site}</span>
-              {artifact.location.coordinates && (
-                <div className="coordinates">
-                  <span>{artifact.location.coordinates.latitude}, </span>
-                  <span>{artifact.location.coordinates.longitude}</span>
-                </div>
-              )}
+              <label>Location</label>
+              <span>{artifact.DiscoveryLocation}</span>
+            </div>
+            <div className="info-group">
+              <label>Date Found</label>
+              <span>{new Date(artifact.DiscoveryDate).toLocaleDateString()}</span>
             </div>
           </section>
 
@@ -111,30 +96,7 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
             <h3>Storage</h3>
             <div className="info-group">
               <label>Location</label>
-              <span>{artifact.storage.location}</span>
-            </div>
-            <div className="info-group">
-              <label>Container</label>
-              <span>{artifact.storage.container}</span>
-            </div>
-            <div className="info-group">
-              <label>Position</label>
-              <span>{artifact.storage.position}</span>
-            </div>
-          </section>
-
-          <section className="categories-tags">
-            <h3>Categories</h3>
-            <div className="categories-list">
-              {artifact.category.map((cat, index) => (
-                <span key={index} className="category-badge">{cat}</span>
-              ))}
-            </div>
-            <h3>Tags</h3>
-            <div className="tags-list">
-              {artifact.tags.map((tag, index) => (
-                <span key={index} className="tag-badge">{tag}</span>
-              ))}
+              <span>{artifact.StorageLocation}</span>
             </div>
           </section>
 
@@ -142,13 +104,12 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
             <h3>Metadata</h3>
             <div className="info-group">
               <label>Created</label>
-              <span>{new Date(artifact.metadata.createdAt).toLocaleDateString()}</span>
-              <span className="by-user">by {artifact.metadata.createdBy}</span>
+              <span>{new Date(artifact.CreatedAt).toLocaleDateString()}</span>
+              <span className="by-user">by {artifact.CreatorId}</span>
             </div>
             <div className="info-group">
               <label>Last Modified</label>
-              <span>{new Date(artifact.metadata.updatedAt).toLocaleDateString()}</span>
-              <span className="by-user">by {artifact.metadata.lastModifiedBy}</span>
+              <span>{artifact.UpdatedAt ? new Date(artifact.UpdatedAt).toLocaleDateString() : 'Never'}</span>
             </div>
           </section>
         </div>

@@ -7,6 +7,8 @@ import './Documents.css';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
+const baseUrl = 'http://localhost:5075';
+
 interface FormErrors {
   [key: string]: string;
 }
@@ -25,15 +27,13 @@ const Documents = () => {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
 
   const [formData, setFormData] = useState<CreateArtifactDto>({
-    title: '',
-    description: '',
-    period: '',
-    location: {
-      site: '',
-    },
-    condition: 'Good',
-    category: ['Artifact'],
-    image: undefined,
+    Name: '',
+    Description: '',
+    DiscoveryLocation: '',
+    Period: '',
+    Type: 'Artifact',
+    Material: '',
+    image: undefined
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
@@ -60,34 +60,26 @@ const Documents = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
 
-  // Sort artifacts based on current sort settings
-  const sortedArtifacts = [...artifacts].sort((a, b) => {
-    let compareValueA: string | number = '';
-    let compareValueB: string | number = '';
-
-    switch (sortBy) {
-      case 'date':
-        compareValueA = a.metadata?.createdAt || '';
-        compareValueB = b.metadata?.createdAt || '';
-        break;
-      case 'type':
-        compareValueA = a.category?.[0] || '';
-        compareValueB = b.category?.[0] || '';
-        break;
-      case 'title':
-        compareValueA = a.title;
-        compareValueB = b.title;
-        break;
-    }
-
-    if (sortOrder === 'asc') {
-      return compareValueA > compareValueB ? 1 : -1;
-    } else {
-      return compareValueA < compareValueB ? 1 : -1;
-    }
-  });
-
-  const currentArtifacts = sortedArtifacts.slice(startIndex, endIndex);
+  const currentArtifacts = artifacts
+    .slice(startIndex, endIndex)
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          return sortOrder === 'asc'
+            ? new Date(a.CreatedAt).getTime() - new Date(b.CreatedAt).getTime()
+            : new Date(b.CreatedAt).getTime() - new Date(a.CreatedAt).getTime();
+        case 'type':
+          return sortOrder === 'asc'
+            ? (a.Type || '').localeCompare(b.Type || '')
+            : (b.Type || '').localeCompare(a.Type || '');
+        case 'title':
+          return sortOrder === 'asc'
+            ? a.Name.localeCompare(b.Name)
+            : b.Name.localeCompare(a.Name);
+        default:
+          return 0;
+      }
+    });
 
   const handleSort = (type: 'date' | 'type' | 'title') => {
     if (sortBy === type) {
@@ -96,6 +88,34 @@ const Documents = () => {
       setSortBy(type);
       setSortOrder('asc');
     }
+
+    const sorted = [...artifacts].sort((a, b) => {
+      let valueA, valueB;
+      switch (type) {
+        case 'date':
+          valueA = new Date(a.CreatedAt).getTime();
+          valueB = new Date(b.CreatedAt).getTime();
+          break;
+        case 'type':
+          valueA = a.Type || '';
+          valueB = b.Type || '';
+          break;
+        case 'title':
+          valueA = a.Name;
+          valueB = b.Name;
+          break;
+        default:
+          return 0;
+      }
+
+      if (sortOrder === 'asc') {
+        return valueA > valueB ? 1 : -1;
+      } else {
+        return valueA < valueB ? 1 : -1;
+      }
+    });
+
+    setArtifacts(sorted);
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,23 +134,19 @@ const Documents = () => {
     fileInputRef.current?.click();
   };
 
-  const validateForm = (): boolean => {
+  const validateForm = () => {
     const newErrors: FormErrors = {};
     
-    if (!formData.title.trim()) {
-      newErrors.title = 'Title is required';
+    if (!formData.Name.trim()) {
+      newErrors.Name = 'Title is required';
     }
     
-    if (!formData.location.site.trim()) {
-      newErrors.location = 'Location is required';
+    if (!formData.DiscoveryLocation.trim()) {
+      newErrors.DiscoveryLocation = 'Location is required';
     }
     
-    if (!formData.condition.trim()) {
-      newErrors.condition = 'Condition is required';
-    }
-    
-    if (!formData.category.length) {
-      newErrors.category = 'At least one category is required';
+    if (formData.Type && !formData.Type.trim()) {
+      newErrors.Type = 'Type is required';
     }
 
     setErrors(newErrors);
@@ -139,15 +155,13 @@ const Documents = () => {
 
   const resetForm = () => {
     setFormData({
-      title: '',
-      description: '',
-      period: '',
-      location: {
-        site: '',
-      },
-      condition: 'Good',
-      category: ['Artifact'],
-      image: undefined,
+      Name: '',
+      Description: '',
+      DiscoveryLocation: '',
+      Period: '',
+      Type: 'Artifact',
+      Material: '',
+      image: undefined
     });
     setSelectedImage(null);
     setImagePreview(null);
@@ -157,29 +171,23 @@ const Documents = () => {
     e.preventDefault();
     
     if (!validateForm()) {
-      toast.error('Please fill in all required fields');
       return;
     }
 
     setIsLoading(true);
     try {
-      const artifactData = {
+      const newArtifact = await artifactService.createArtifact({
         ...formData,
-        image: selectedImage || undefined
-      };
+        Type: formData.Type || 'Artifact'  // Provide default value
+      });
       
-      await artifactService.createArtifact(artifactData);
-      toast.success('Artifact created successfully');
+      setArtifacts(prev => [newArtifact, ...prev]);
       setIsFormOpen(false);
       resetForm();
-      await fetchArtifacts();
+      toast.success('Artifact created successfully!');
     } catch (error) {
+      toast.error('Failed to create artifact');
       console.error('Error creating artifact:', error);
-      if (axios.isAxiosError(error) && error.response) {
-        toast.error(`Failed to create artifact: ${error.response.data.message || error.response.data.title || 'Unknown error'}`);
-      } else {
-        toast.error('Failed to create artifact');
-      }
     } finally {
       setIsLoading(false);
     }
@@ -187,21 +195,10 @@ const Documents = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
-    if (name === 'site') {
-      setFormData(prev => ({
-        ...prev,
-        location: {
-          ...prev.location,
-          site: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
 
     if (errors[name]) {
       setErrors(prev => ({
@@ -282,7 +279,7 @@ const Documents = () => {
           <div className={`artifacts-grid ${viewMode}`}>
             {currentArtifacts.map(artifact => (
               <div 
-                key={artifact.id} 
+                key={artifact.Id} 
                 className="artifact-card"
                 onClick={() => {
                   setSelectedArtifact(artifact);
@@ -290,32 +287,32 @@ const Documents = () => {
                 }}
               >
                 <div className="artifact-card-image">
-                  {artifact.images[0] && (
-                    <img 
-                      src={artifact.images[0].url} 
-                      alt={artifact.title}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = 'https://via.placeholder.com/300x200?text=No+Image';
-                      }}
-                    />
-                  )}
+                  <img 
+                    src={artifact.ImageUrl ? `${baseUrl}${artifact.ImageUrl}` : '/noimage.png'} 
+                    alt={artifact.Name}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/noimage.png';
+                    }}
+                  />
                 </div>
                 <div className="artifact-card-content">
-                  <h3>{artifact.title}</h3>
+                  <h3>{artifact.Name}</h3>
                   <div className="artifact-card-metadata">
-                    <span className="period">{artifact.period}</span>
-                    <span className="status">{artifact.status}</span>
+                    <span className="period">{artifact.Period}</span>
+                    <span className="status">{artifact.Type}</span>
                   </div>
-                  <p className="artifact-card-description">{artifact.description.slice(0, 100)}...</p>
+                  <p className="artifact-card-description">{artifact.Description?.slice(0, 100)}...</p>
                 </div>
                 <div className="artifact-card-footer">
                   <div className="artifact-card-tags">
-                    {artifact.category.slice(0, 2).map((cat, index) => (
-                      <span key={index} className="category-badge">{cat}</span>
-                    ))}
+                    {artifact.Type && (
+                      <span className="category-badge">{artifact.Type}</span>
+                    )}
+                    {artifact.Material && (
+                      <span className="category-badge">{artifact.Material}</span>
+                    )}
                   </div>
-                  {artifact.featured && <span className="featured">Featured</span>}
                 </div>
               </div>
             ))}
@@ -362,77 +359,60 @@ const Documents = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="title">Title*</label>
+                <label htmlFor="Name">Title*</label>
                 <input
                   type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
+                  id="Name"
+                  name="Name"
+                  value={formData.Name}
                   onChange={handleChange}
-                  className={errors.title ? 'error' : ''}
+                  className={errors.Name ? 'error' : ''}
                 />
-                {errors.title && <span className="error-message">{errors.title}</span>}
+                {errors.Name && <span className="error-message">{errors.Name}</span>}
               </div>
 
               <div className="form-group">
-                <label htmlFor="description">Description</label>
+                <label htmlFor="Description">Description</label>
                 <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
+                  id="Description"
+                  name="Description"
+                  value={formData.Description}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="site">Location*</label>
+                <label htmlFor="DiscoveryLocation">Location*</label>
                 <input
                   type="text"
-                  id="site"
-                  name="site"
-                  value={formData.location.site}
+                  id="DiscoveryLocation"
+                  name="DiscoveryLocation"
+                  value={formData.DiscoveryLocation}
                   onChange={handleChange}
-                  className={errors.location ? 'error' : ''}
+                  className={errors.DiscoveryLocation ? 'error' : ''}
                 />
-                {errors.location && <span className="error-message">{errors.location}</span>}
+                {errors.DiscoveryLocation && <span className="error-message">{errors.DiscoveryLocation}</span>}
               </div>
 
               <div className="form-group">
-                <label htmlFor="period">Period</label>
+                <label htmlFor="Period">Period</label>
                 <input
                   type="text"
-                  id="period"
-                  name="period"
-                  value={formData.period}
+                  id="Period"
+                  name="Period"
+                  value={formData.Period}
                   onChange={handleChange}
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="condition">Condition*</label>
+                <label htmlFor="Type">Type*</label>
                 <select
-                  id="condition"
-                  name="condition"
-                  value={formData.condition}
+                  id="Type"
+                  name="Type"
+                  value={formData.Type}
                   onChange={handleChange}
-                  className={errors.condition ? 'error' : ''}
-                >
-                  <option value="Excellent">Excellent</option>
-                  <option value="Good">Good</option>
-                  <option value="Fair">Fair</option>
-                  <option value="Poor">Poor</option>
-                </select>
-                {errors.condition && <span className="error-message">{errors.condition}</span>}
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="category">Category*</label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category[0]}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: [e.target.value] }))}
-                  className={errors.category ? 'error' : ''}
+                  className={errors.Type ? 'error' : ''}
                 >
                   <option value="Artifact">Artifact</option>
                   <option value="Tool">Tool</option>
@@ -442,7 +422,18 @@ const Documents = () => {
                   <option value="Document">Document</option>
                   <option value="Other">Other</option>
                 </select>
-                {errors.category && <span className="error-message">{errors.category}</span>}
+                {errors.Type && <span className="error-message">{errors.Type}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="Material">Material</label>
+                <input
+                  type="text"
+                  id="Material"
+                  name="Material"
+                  value={formData.Material}
+                  onChange={handleChange}
+                />
               </div>
 
               <div className="form-actions">

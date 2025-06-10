@@ -1,51 +1,19 @@
 export interface Artifact {
-  id: string;
-  title: string;
-  description: string;
-  dateFound: string;
-  period: string;
-  location: {
-    site: string;
-    coordinates?: {
-      latitude: number;
-      longitude: number;
-    };
-  };
-  dimensions: {
-    height: number;
-    width: number;
-    depth: number;
-    unit: 'cm' | 'mm' | 'm';
-  };
-  weight: {
-    value: number;
-    unit: 'g' | 'kg';
-  };
-  material: string[];
-  condition: 'Excellent' | 'Good' | 'Fair' | 'Poor';
-  conservation: {
-    status: 'Not Required' | 'Pending' | 'In Progress' | 'Completed';
-    notes?: string;
-    lastChecked?: string;
-  };
-  storage: {
-    location: string;
-    container: string;
-    position: string;
-  };
-  images: {
-    url: string;
-    type: 'primary' | 'detail' | 'conservation' | 'other';
-    caption?: string;
-  }[];
-  category: string[];
-  tags: string[];
-  status: 'PUBLISHED' | 'DRAFT' | 'ARCHIVED';
-  featured: boolean;
-  metadata: {
-    createdAt: string;
-    updatedAt: string;
-    createdBy: string;
-    lastModifiedBy: string;
-  };
+  Id: string;
+  Name: string;
+  Description?: string;
+  DiscoveryDate: string;
+  DiscoveryLocation: string;
+  Period?: string;
+  Type?: string;
+  Material?: string;
+  Weight?: number;
+  Height?: number;
+  Width?: number;
+  Length?: number;
+  StorageLocation?: string;
+  CreatorId: string;
+  CreatedAt: string;
+  UpdatedAt?: string;
+  ImageUrl?: string | null;
 } 
