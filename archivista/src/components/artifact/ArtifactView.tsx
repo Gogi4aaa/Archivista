@@ -1,29 +1,10 @@
 import React, { useState } from 'react';
 import './ArtifactView.css';
+import { Artifact } from '../../types/Artifact';
 
 interface ArtifactViewProps {
-  artifact: {
-    Id: string;
-    Name: string;
-    Description?: string;
-    DiscoveryDate: string;
-    DiscoveryLocation: string;
-    Period?: string;
-    Type?: string;
-    Material?: string;
-    Weight?: number;
-    Height?: number;
-    Width?: number;
-    Length?: number;
-    StorageLocation?: string;
-    CreatorId: string;
-    CreatedAt: string;
-    UpdatedAt?: string;
-    ImageUrl?: string | null;
-  };
+  artifact: Artifact;
 }
-
-const baseUrl = 'http://localhost:5075';
 
 const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
   const [imageError, setImageError] = useState(false);
@@ -32,10 +13,10 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
     <div className="artifact-view">
       <div className="artifact-header">
         <div className="artifact-title-section">
-          <h1>{artifact.Name}</h1>
+          <h1>{artifact.name}</h1>
           <div className="artifact-metadata">
-            <span className="period">{artifact.Period}</span>
-            <span className="status">{artifact.Type}</span>
+            {artifact.period && <span className="period">{artifact.period}</span>}
+            {artifact.type && <span className="status">{artifact.type}</span>}
           </div>
         </div>
       </div>
@@ -44,8 +25,8 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
         <div className="artifact-main">
           <div className="artifact-image-section">
             <img
-              src={!imageError && artifact.ImageUrl ? `${baseUrl}${artifact.ImageUrl}` : '/noimage.png'}
-              alt={artifact.Name}
+              src={!imageError && (artifact.loadedImageUrl || artifact.imageUrl) ? artifact.loadedImageUrl || '/noimage.png' : '/noimage.png'}
+              alt={artifact.name}
               className="primary-image"
               onError={() => setImageError(true)}
             />
@@ -54,26 +35,34 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
           <div className="artifact-details">
             <section className="description">
               <h2>Description</h2>
-              <p>{artifact.Description}</p>
+              <p>{artifact.description}</p>
             </section>
 
             <section className="physical-details">
               <h2>Physical Details</h2>
               <div className="details-grid">
-                <div className="detail-item">
-                  <label>Dimensions</label>
-                  <span>
-                    H: {artifact.Height}, W: {artifact.Width}, L: {artifact.Length}
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <label>Weight</label>
-                  <span>{artifact.Weight}</span>
-                </div>
-                <div className="detail-item">
-                  <label>Material</label>
-                  <span>{artifact.Material}</span>
-                </div>
+                {(artifact.height || artifact.width || artifact.length) && (
+                  <div className="detail-item">
+                    <label>Dimensions</label>
+                    <span>
+                      {artifact.height && `H: ${artifact.height}`}
+                      {artifact.width && ` W: ${artifact.width}`}
+                      {artifact.length && ` L: ${artifact.length}`}
+                    </span>
+                  </div>
+                )}
+                {artifact.weight && (
+                  <div className="detail-item">
+                    <label>Weight</label>
+                    <span>{artifact.weight}</span>
+                  </div>
+                )}
+                {artifact.material && (
+                  <div className="detail-item">
+                    <label>Material</label>
+                    <span>{artifact.material}</span>
+                  </div>
+                )}
               </div>
             </section>
           </div>
@@ -84,33 +73,37 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
             <h3>Discovery Details</h3>
             <div className="info-group">
               <label>Location</label>
-              <span>{artifact.DiscoveryLocation}</span>
+              <span>{artifact.discoveryLocation}</span>
             </div>
             <div className="info-group">
               <label>Date Found</label>
-              <span>{new Date(artifact.DiscoveryDate).toLocaleDateString()}</span>
+              <span>{new Date(artifact.discoveryDate).toLocaleDateString()}</span>
             </div>
           </section>
 
-          <section className="storage-info">
-            <h3>Storage</h3>
-            <div className="info-group">
-              <label>Location</label>
-              <span>{artifact.StorageLocation}</span>
-            </div>
-          </section>
+          {artifact.storageLocation && (
+            <section className="storage-info">
+              <h3>Storage</h3>
+              <div className="info-group">
+                <label>Location</label>
+                <span>{artifact.storageLocation}</span>
+              </div>
+            </section>
+          )}
 
           <section className="metadata-info">
             <h3>Metadata</h3>
             <div className="info-group">
               <label>Created</label>
-              <span>{new Date(artifact.CreatedAt).toLocaleDateString()}</span>
-              <span className="by-user">by {artifact.CreatorId}</span>
+              <span>{new Date(artifact.createdAt).toLocaleDateString()}</span>
+              <span className="by-user">by {artifact.creatorId}</span>
             </div>
-            <div className="info-group">
-              <label>Last Modified</label>
-              <span>{artifact.UpdatedAt ? new Date(artifact.UpdatedAt).toLocaleDateString() : 'Never'}</span>
-            </div>
+            {artifact.updatedAt && (
+              <div className="info-group">
+                <label>Last Modified</label>
+                <span>{new Date(artifact.updatedAt).toLocaleDateString()}</span>
+              </div>
+            )}
           </section>
         </div>
       </div>

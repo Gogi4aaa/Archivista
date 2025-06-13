@@ -86,6 +86,12 @@ builder.Services.AddCors(options =>
         });
 });
 
+// Configure Kestrel
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenLocalhost(5075);
+});
+
 var app = builder.Build();
 
 // Seed the database
@@ -112,9 +118,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Archivista API V1");
         c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+        // Set Swagger as the default page
+        c.RoutePrefix = string.Empty;
     });
-    // In development, don't redirect to HTTPS
-    app.UseHttpsRedirection();
 }
 
 // Use CORS
@@ -125,5 +131,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Redirect root to Swagger
+app.MapGet("/", () => Results.Redirect("/swagger"));
 
 app.Run();

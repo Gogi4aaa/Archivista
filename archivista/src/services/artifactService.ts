@@ -49,6 +49,20 @@ export const artifactService = {
     }
   },
 
+  getArtifactImage: async (id: string): Promise<Blob> => {
+    try {
+      const response = await api.get(`/artifact/image/${id}`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Please login to view images');
+      }
+      throw new Error('Failed to fetch image');
+    }
+  },
+
   createArtifact: async (artifact: CreateArtifactDto): Promise<Artifact> => {
     try {
       const formData = new FormData();

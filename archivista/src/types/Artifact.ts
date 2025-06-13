@@ -1,19 +1,20 @@
 export interface Artifact {
-  Id: string;
-  Name: string;
-  Description?: string;
-  DiscoveryDate: string;
-  DiscoveryLocation: string;
-  Period?: string;
-  Type?: string;
-  Material?: string;
-  Weight?: number;
-  Height?: number;
-  Width?: number;
-  Length?: number;
-  StorageLocation?: string;
-  CreatorId: string;
-  CreatedAt: string;
-  UpdatedAt?: string;
-  ImageUrl?: string | null;
-} 
+  id: string;
+  name: string;
+  description?: string;
+  discoveryDate: string;
+  discoveryLocation: string;
+  period?: string;
+  type?: string;
+  material?: string;
+  weight?: number;
+  height?: number;
+  width?: number;
+  length?: number;
+  storageLocation?: string;
+  creatorId: string;
+  createdAt: string;
+  updatedAt?: string;
+  imageUrl?: string | null;
+  loadedImageUrl?: string; // URL for already loaded image blob
+}   

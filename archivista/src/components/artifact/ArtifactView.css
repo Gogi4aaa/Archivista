@@ -198,4 +198,146 @@
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.6);
   margin-left: 8px;
+}
+
+.artifact-card {
+  background: #1a1d24;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.artifact-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.artifact-card-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.artifact-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.artifact-card:hover .artifact-card-image img {
+  transform: scale(1.05);
+}
+
+.artifact-card-content {
+  padding: 20px;
+  flex: 1;
+}
+
+.artifact-card-content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.artifact-card-metadata {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.artifact-card-metadata span {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.period {
+  background: rgba(63, 203, 243, 0.1);
+  color: #3fcbf3;
+}
+
+.status {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.artifact-card-description {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.artifact-details {
+  margin-top: 16px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.detail-row label {
+  color: #3fcbf3;
+  margin-right: 8px;
+  min-width: 80px;
+}
+
+.detail-row span {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.artifact-card-footer {
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.artifact-card-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.category-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  background: rgba(63, 203, 243, 0.1);
+  color: #3fcbf3;
+}
+
+.artifact-card-date {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.artifacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 24px;
+  width: 100%;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 } 
