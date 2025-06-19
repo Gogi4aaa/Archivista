@@ -290,12 +290,16 @@ const Documents = () => {
       ) : (
         <>
           <div className={`artifacts-grid ${viewMode}`}>
-            {currentArtifacts.map(artifact => (
-              <ArtifactBox
+            {currentArtifacts.map((artifact, index) => (
+              <div
                 key={artifact.id}
-                artifact={artifact}
-                onClick={handleArtifactClick}
-              />
+                style={{ '--card-index': index } as React.CSSProperties}
+              >
+                <ArtifactBox
+                  artifact={artifact}
+                  onClick={handleArtifactClick}
+                />
+              </div>
             ))}
           </div>
 

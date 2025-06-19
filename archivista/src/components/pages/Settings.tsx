@@ -100,7 +100,7 @@ const Settings = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div className="settings-row">
+            <div className="settings-row" style={{ '--row-index': 0 } as React.CSSProperties}>
               <div className="settings-label">
                 <h3>New Username</h3>
                 <p>Choose a new username for your account</p>
@@ -116,7 +116,7 @@ const Settings = () => {
               />
             </div>
 
-            <div className="settings-row">
+            <div className="settings-row" style={{ '--row-index': 1 } as React.CSSProperties}>
               <div className="settings-label">
                 <h3>New Email</h3>
                 <p>Update your email address</p>

@@ -20,6 +20,14 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <nav className="nav">
+        <div className="logo-container">
+          <img 
+            src="/logoarchivista2.png" 
+            alt="Archivista Logo" 
+            className="sidebar-logo"
+            loading="eager"
+          />
+        </div>
         <div className="nav-links">
         {sidebarLinks.map(link => (
           <NavLink

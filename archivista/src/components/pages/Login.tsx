@@ -38,7 +38,15 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-form">
-        <h2>Login to Archivista</h2>
+        <div className="login-logo">
+          <img 
+            src="/logoarchivista2.png" 
+            alt="Archivista Logo" 
+            className="login-logo-img"
+            loading="eager"
+          />
+        </div>
+        <h2>Login</h2>
         {errors.general && (
           <div className="error-message">
             <span className="error-icon">⚠</span>

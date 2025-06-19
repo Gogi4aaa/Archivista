@@ -2,6 +2,20 @@
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeScaleIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .toolbar {
@@ -10,6 +24,20 @@
   padding: 20px;
   margin: 24px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .toolbar-main {
@@ -58,13 +86,32 @@
   background: #1a1d24;
   border-radius: 16px;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  animation: cardAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: transform;
+}
+
+.artifact-card:nth-child(n) {
+  animation-delay: calc(0.1s * var(--card-index, 0));
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .artifact-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
 }
 
 .artifact-card-image {
@@ -153,6 +200,20 @@
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  opacity: 0;
+  transform: scale(0.9);
+  animation: modalAppear 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modal-header {
