@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ArtifactView.css';
 import { Artifact } from '../../types/Artifact';
+import { motion } from 'framer-motion';
 
 interface ArtifactViewProps {
   artifact: Artifact;
@@ -8,106 +9,184 @@ interface ArtifactViewProps {
 
 const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
   const [imageError, setImageError] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Reset states when artifact changes
+    setImageError(false);
+    setIsImageLoaded(false);
+  }, [artifact]);
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const hasDimensions = artifact.height || artifact.width || artifact.length;
+  const hasPhysicalDetails = hasDimensions || artifact.weight || artifact.material;
 
   return (
-    <div className="artifact-view">
-      <div className="artifact-header">
-        <div className="artifact-title-section">
-          <h1>{artifact.name}</h1>
-          <div className="artifact-metadata">
-            {artifact.period && <span className="period">{artifact.period}</span>}
-            {artifact.type && <span className="status">{artifact.type}</span>}
-          </div>
+    <motion.div 
+      className="artifact-view"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="artifact-hero">
+        <motion.div 
+          className="artifact-image-container"
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <img
+            src={!imageError && (artifact.loadedImageUrl || artifact.imageUrl) ? artifact.loadedImageUrl || '/noimage.png' : '/noimage.png'}
+            alt={artifact.name}
+            className={`primary-image ${isImageLoaded ? 'loaded' : ''}`}
+            onError={() => setImageError(true)}
+            onLoad={() => setIsImageLoaded(true)}
+          />
+          <div className="image-overlay" />
+        </motion.div>
+
+        <div className="artifact-hero-content">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="artifact-metadata">
+              {artifact.period && <span className="period">{artifact.period}</span>}
+              {artifact.type && <span className="type">{artifact.type}</span>}
+            </div>
+            <h1>{artifact.name}</h1>
+          </motion.div>
         </div>
       </div>
 
       <div className="artifact-content">
         <div className="artifact-main">
-          <div className="artifact-image-section">
-            <img
-              src={!imageError && (artifact.loadedImageUrl || artifact.imageUrl) ? artifact.loadedImageUrl || '/noimage.png' : '/noimage.png'}
-              alt={artifact.name}
-              className="primary-image"
-              onError={() => setImageError(true)}
-            />
-          </div>
-
-          <div className="artifact-details">
-            <section className="description">
-              <h2>Description</h2>
+          {artifact.description && (
+            <motion.section 
+              className="description"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2>About this Artifact</h2>
               <p>{artifact.description}</p>
-            </section>
+            </motion.section>
+          )}
 
-            <section className="physical-details">
+          {hasPhysicalDetails && (
+            <motion.section 
+              className="physical-details"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
               <h2>Physical Details</h2>
               <div className="details-grid">
-                {(artifact.height || artifact.width || artifact.length) && (
-                  <div className="detail-item">
-                    <label>Dimensions</label>
-                    <span>
-                      {artifact.height && `H: ${artifact.height}`}
-                      {artifact.width && ` W: ${artifact.width}`}
-                      {artifact.length && ` L: ${artifact.length}`}
-                    </span>
+                {hasDimensions && (
+                  <div className="detail-card">
+                    <div className="detail-icon">📏</div>
+                    <div className="detail-content">
+                      <label>Dimensions</label>
+                      <span>
+                        {artifact.height && `H: ${artifact.height}`}
+                        {artifact.width && ` W: ${artifact.width}`}
+                        {artifact.length && ` L: ${artifact.length}`}
+                      </span>
+                    </div>
                   </div>
                 )}
                 {artifact.weight && (
-                  <div className="detail-item">
-                    <label>Weight</label>
-                    <span>{artifact.weight}</span>
+                  <div className="detail-card">
+                    <div className="detail-icon">⚖️</div>
+                    <div className="detail-content">
+                      <label>Weight</label>
+                      <span>{artifact.weight}</span>
+                    </div>
                   </div>
                 )}
                 {artifact.material && (
-                  <div className="detail-item">
-                    <label>Material</label>
-                    <span>{artifact.material}</span>
+                  <div className="detail-card">
+                    <div className="detail-icon">🔨</div>
+                    <div className="detail-content">
+                      <label>Material</label>
+                      <span>{artifact.material}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.section>
+          )}
+        </div>
+
+        <motion.div 
+          className="artifact-sidebar"
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          {(artifact.discoveryLocation || artifact.discoveryDate) && (
+            <section className="discovery-info">
+              <h3>Discovery Details</h3>
+              <div className="info-card">
+                {artifact.discoveryLocation && (
+                  <div className="info-group">
+                    <label>Location</label>
+                    <span>{artifact.discoveryLocation}</span>
+                  </div>
+                )}
+                {artifact.discoveryDate && (
+                  <div className="info-group">
+                    <label>Date Found</label>
+                    <span>{formatDate(artifact.discoveryDate)}</span>
                   </div>
                 )}
               </div>
             </section>
-          </div>
-        </div>
-
-        <div className="artifact-sidebar">
-          <section className="location-info">
-            <h3>Discovery Details</h3>
-            <div className="info-group">
-              <label>Location</label>
-              <span>{artifact.discoveryLocation}</span>
-            </div>
-            <div className="info-group">
-              <label>Date Found</label>
-              <span>{new Date(artifact.discoveryDate).toLocaleDateString()}</span>
-            </div>
-          </section>
+          )}
 
           {artifact.storageLocation && (
             <section className="storage-info">
-              <h3>Storage</h3>
-              <div className="info-group">
-                <label>Location</label>
-                <span>{artifact.storageLocation}</span>
+              <h3>Current Location</h3>
+              <div className="info-card">
+                <div className="info-group">
+                  <label>Storage</label>
+                  <span>{artifact.storageLocation}</span>
+                </div>
               </div>
             </section>
           )}
 
           <section className="metadata-info">
-            <h3>Metadata</h3>
-            <div className="info-group">
-              <label>Created</label>
-              <span>{new Date(artifact.createdAt).toLocaleDateString()}</span>
-              <span className="by-user">by {artifact.creatorId}</span>
-            </div>
-            {artifact.updatedAt && (
+            <h3>Record Details</h3>
+            <div className="info-card">
               <div className="info-group">
-                <label>Last Modified</label>
-                <span>{new Date(artifact.updatedAt).toLocaleDateString()}</span>
+                <label>Created</label>
+                <div className="metadata-value">
+                  <span>{formatDate(artifact.createdAt)}</span>
+                  {artifact.creatorId && (
+                    <span className="by-user">by {artifact.creatorId}</span>
+                  )}
+                </div>
               </div>
-            )}
+              {artifact.updatedAt && (
+                <div className="info-group">
+                  <label>Last Modified</label>
+                  <span>{formatDate(artifact.updatedAt)}</span>
+                </div>
+              )}
+            </div>
           </section>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
