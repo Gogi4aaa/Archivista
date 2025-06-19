@@ -182,3 +182,24 @@
   background-color: #c82333 !important;
   color: white !important;
 }
+
+/* Statistics Dashboard Hover Effects */
+.stats-card {
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 48px rgba(63, 203, 243, 0.2);
+}
+
+.stats-item {
+  transition: all 0.3s ease;
+  transform: translateX(0);
+}
+
+.stats-item:hover {
+  background: rgba(63, 203, 243, 0.1) !important;
+  transform: translateX(5px);
+}

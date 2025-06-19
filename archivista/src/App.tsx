@@ -16,7 +16,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { Toaster } from 'react-hot-toast';
 
-
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -35,21 +34,14 @@ const AppContent = () => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {isAuthenticated && <TopBar />}
         <Routes>
-          {/* Default route redirects to login if not authenticated, home if authenticated */}
-          <Route path="/" element={<Navigate to={isAuthenticated ? "/home" : "/login"} replace />} />
-          
-          {/* Login route - redirects to home if already authenticated */}
+          {/* Default route redirects to login if not authenticated, statistics if authenticated */}
+          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          {/* Login route - redirects to statistics if already authenticated */}
           <Route 
             path="/login" 
-            element={isAuthenticated ? <Navigate to="/home" replace /> : <Login />} 
+            element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
           />
-          
           {/* Protected routes */}
-          <Route path="/home" element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } />
           <Route path="/documents" element={
             <ProtectedRoute>
               <Documents />
@@ -60,9 +52,8 @@ const AppContent = () => {
               <Settings />
             </ProtectedRoute>
           } />
-
-          {/* Catch all route - redirects to login or home */}
-          <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/login"} replace />} />
+          {/* Catch all route - redirects to login or statistics */}
+          <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} />
         </Routes>
       </div>
     </div>
