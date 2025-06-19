@@ -13,6 +13,7 @@ import Documents from './components/pages/Documents';
 import Settings from './components/pages/Settings';
 import Login from './components/pages/Login';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { Toaster } from 'react-hot-toast';
 
 
@@ -71,10 +72,12 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-        <Toaster position="top-right" reverseOrder={false} />
-      </Router>
+      <SettingsProvider>
+        <Router>
+          <AppContent />
+          <Toaster position="top-right" reverseOrder={false} />
+        </Router>
+      </SettingsProvider>
     </AuthProvider>
   );
 }

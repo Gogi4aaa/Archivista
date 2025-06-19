@@ -9,5 +9,6 @@ namespace ArchivistaApi.Services.Interfaces
     {
         Task<IEnumerable<int>> GetUserRoleIdsByEmailAsync(string email);
         Task<User> GetUserByEmailAsync(string email);
+        Task UpdateProfileAsync(UpdateProfileRequest request);
     }
 } 

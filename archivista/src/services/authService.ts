@@ -5,6 +5,7 @@ const API_URL = 'http://localhost:5075/api';
 
 interface AuthResponse {
   token: string;
+  userId: string;
   username: string;
   email: string;
   roles: string[];
@@ -55,7 +56,7 @@ export const authService = {
       
       // Convert the response to User type
       const user: User = {
-        id: '', // The API might need to be updated to include this
+        id: data.userId,
         username: data.username,
         email: data.email,
         role: data.roles.includes('Admin') ? 'admin' : 'user'

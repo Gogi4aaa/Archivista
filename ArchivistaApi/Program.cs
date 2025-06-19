@@ -36,6 +36,10 @@ builder.Services.AddApplicationServices(builder.Configuration);
 // Register UserService
 builder.Services.AddScoped<IUserService, UserService>();
 
+// Register services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IArtifactService, ArtifactService>();
+
 builder.Services.AddControllers();
 
 // Configure Swagger/OpenAPI

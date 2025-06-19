@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
+  updateUser: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +36,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: false,
     isLoading: false,
   });
+
+  const updateUser = useCallback((updates: Partial<User>) => {
+    setAuthState(prev => ({
+      ...prev,
+      user: prev.user ? { ...prev.user, ...updates } : null
+    }));
+  }, []);
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
@@ -87,6 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...authState,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}
