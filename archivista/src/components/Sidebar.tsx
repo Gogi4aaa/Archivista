@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 const sidebarLinks = [
   { to: '/', label: 'Statistics', icon: '📊' },
   { to: '/documents', label: 'Documents', icon: '🏺' },
+  { to: '/users', label: 'Users', icon: '👥' },
   { to: '/settings', label: 'Settings', icon: '⚙️' },
 ];
 

@@ -12,6 +12,7 @@ import Home from './components/pages/Home';
 import Documents from './components/pages/Documents';
 import Settings from './components/pages/Settings';
 import Login from './components/pages/Login';
+import UserManagement from './components/pages/UserManagement';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { Toaster } from 'react-hot-toast';
@@ -50,6 +51,11 @@ const AppContent = () => {
           <Route path="/settings" element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          } />
+          <Route path="/users" element={
+            <ProtectedRoute>
+              <UserManagement />
             </ProtectedRoute>
           } />
           {/* Catch all route - redirects to login or statistics */}

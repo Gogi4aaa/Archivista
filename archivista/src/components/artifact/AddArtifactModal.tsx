@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { CreateArtifactDto, artifactService } from '../../services/artifactService';
 import toast from 'react-hot-toast';
 import './ArtifactView.css';
@@ -18,6 +18,7 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<FormErrors>({});
 
   const [formData, setFormData] = useState<CreateArtifactDto>({
@@ -30,9 +31,46 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
     image: undefined
   });
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.addEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose]);
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error('Image size should be less than 5MB');
+        return;
+      }
+
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please select a valid image file (JPEG, PNG, or WebP)');
+        return;
+      }
+
       setSelectedImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -77,6 +115,7 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
     });
     setSelectedImage(null);
     setImagePreview(null);
+    setErrors({});
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,11 +127,17 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
 
     setIsLoading(true);
     try {
-      const newArtifact = await artifactService.createArtifact({
-        ...formData,
-        Type: formData.Type || 'Artifact'
-      });
-      
+      const artifactData: CreateArtifactDto = {
+        Name: formData.Name,
+        Description: formData.Description,
+        DiscoveryLocation: formData.DiscoveryLocation,
+        Period: formData.Period,
+        Type: formData.Type || 'Artifact',
+        Material: formData.Material,
+        image: selectedImage || undefined
+      };
+
+      const newArtifact = await artifactService.createArtifact(artifactData);
       onArtifactCreated(newArtifact);
       onClose();
       resetForm();
@@ -123,27 +168,38 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div className="modal-content" ref={modalRef}>
         <div className="modal-header">
-          <h2>Add New Artifact</h2>
-          <button className="close-button" onClick={onClose}>×</button>
+          <h2 id="modal-title">Add New Artifact</h2>
+          <button 
+            className="close-button" 
+            onClick={onClose}
+            aria-label="Close modal"
+          >
+            ×
+          </button>
         </div>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <div className="image-upload-section">
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleImageSelect}
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               style={{ display: 'none' }}
+              aria-label="Upload artifact image"
             />
             <div 
               className="image-upload-area"
               onClick={triggerImagePicker}
+              onKeyPress={(e) => e.key === 'Enter' && triggerImagePicker()}
+              role="button"
+              tabIndex={0}
+              aria-label="Click to upload image"
             >
               {imagePreview ? (
-                <img src={imagePreview} alt="Selected" className="image-preview" />
+                <img src={imagePreview} alt="Selected artifact" className="image-preview" />
               ) : (
                 <div className="upload-placeholder">
                   <span className="upload-icon">📸</span>
@@ -162,8 +218,15 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
               value={formData.Name}
               onChange={handleChange}
               className={errors.Name ? 'error' : ''}
+              aria-required="true"
+              aria-invalid={!!errors.Name}
+              aria-describedby={errors.Name ? 'name-error' : undefined}
             />
-            {errors.Name && <span className="error-message">{errors.Name}</span>}
+            {errors.Name && (
+              <span className="error-message" id="name-error" role="alert">
+                {errors.Name}
+              </span>
+            )}
           </div>
 
           <div className="form-group">
@@ -173,7 +236,11 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
               name="Description"
               value={formData.Description}
               onChange={handleChange}
+              aria-describedby="description-hint"
             />
+            <span id="description-hint" className="hint-text">
+              Provide a detailed description of the artifact
+            </span>
           </div>
 
           <div className="form-group">
@@ -185,8 +252,15 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
               value={formData.DiscoveryLocation}
               onChange={handleChange}
               className={errors.DiscoveryLocation ? 'error' : ''}
+              aria-required="true"
+              aria-invalid={!!errors.DiscoveryLocation}
+              aria-describedby={errors.DiscoveryLocation ? 'location-error' : undefined}
             />
-            {errors.DiscoveryLocation && <span className="error-message">{errors.DiscoveryLocation}</span>}
+            {errors.DiscoveryLocation && (
+              <span className="error-message" id="location-error" role="alert">
+                {errors.DiscoveryLocation}
+              </span>
+            )}
           </div>
 
           <div className="form-group">
@@ -208,6 +282,9 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
               value={formData.Type}
               onChange={handleChange}
               className={errors.Type ? 'error' : ''}
+              aria-required="true"
+              aria-invalid={!!errors.Type}
+              aria-describedby={errors.Type ? 'type-error' : undefined}
             >
               <option value="Artifact">Artifact</option>
               <option value="Tool">Tool</option>
@@ -217,7 +294,11 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
               <option value="Document">Document</option>
               <option value="Other">Other</option>
             </select>
-            {errors.Type && <span className="error-message">{errors.Type}</span>}
+            {errors.Type && (
+              <span className="error-message" id="type-error" role="alert">
+                {errors.Type}
+              </span>
+            )}
           </div>
 
           <div className="form-group">
@@ -232,7 +313,12 @@ const AddArtifactModal: React.FC<AddArtifactModalProps> = ({ isOpen, onClose, on
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="button" disabled={isLoading}>
+            <button 
+              type="submit" 
+              className="button" 
+              disabled={isLoading}
+              aria-busy={isLoading}
+            >
               {isLoading ? 'Creating...' : 'Create Artifact'}
             </button>
             <button 

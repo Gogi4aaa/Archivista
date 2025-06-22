@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Artifact, CreateArtifactDto, artifactService } from '../../services/artifactService';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Artifact, artifactService } from '../../services/artifactService';
 import ArtifactView from '../artifact/ArtifactView';
 import ArtifactBox from '../artifact/ArtifactBox';
 import AddArtifactModal from '../artifact/AddArtifactModal';
@@ -7,14 +7,6 @@ import Pagination from '../common/Pagination';
 import '../artifact/ArtifactView.css';
 import './Documents.css';
 import toast from 'react-hot-toast';
-import axios from 'axios';
-import { log } from 'console';
-
-const baseUrl = 'http://localhost:5075';
-
-interface FormErrors {
-  [key: string]: string;
-}
 
 const Documents = () => {
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
@@ -22,28 +14,14 @@ const Documents = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<'date' | 'type' | 'title'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState<CreateArtifactDto>({
-    Name: '',
-    Description: '',
-    DiscoveryLocation: '',
-    Period: '',
-    Type: 'Artifact',
-    Material: '',
-    image: undefined
-  });
 
   const fetchArtifacts = async () => {
     setIsLoading(true);
     try {
       const data = await artifactService.getAllArtifacts();
-      console.log("DATA",data);
       setArtifacts(data);
     } catch (error) {
       toast.error('Failed to fetch artifacts');
@@ -99,98 +77,9 @@ const Documents = () => {
     setCurrentPage(1);
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const triggerImagePicker = () => {
-    fileInputRef.current?.click();
-  };
-
-  const validateForm = () => {
-    const newErrors: FormErrors = {};
-    
-    if (!formData.Name.trim()) {
-      newErrors.Name = 'Title is required';
-    }
-    
-    if (!formData.DiscoveryLocation.trim()) {
-      newErrors.DiscoveryLocation = 'Location is required';
-    }
-    
-    if (formData.Type && !formData.Type.trim()) {
-      newErrors.Type = 'Type is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const resetForm = () => {
-    setFormData({
-      Name: '',
-      Description: '',
-      DiscoveryLocation: '',
-      Period: '',
-      Type: 'Artifact',
-      Material: '',
-      image: undefined
-    });
-    setSelectedImage(null);
-    setImagePreview(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const newArtifact = await artifactService.createArtifact({
-        ...formData,
-        Type: formData.Type || 'Artifact'  // Provide default value
-      });
-      
-      setArtifacts(prev => [newArtifact, ...prev]);
-      setIsFormOpen(false);
-      resetForm();
-      toast.success('Artifact created successfully!');
-    } catch (error) {
-      toast.error('Failed to create artifact');
-      console.error('Error creating artifact:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
   const handleArtifactCreated = (newArtifact: Artifact) => {
     setArtifacts(prev => [newArtifact, ...prev]);
+    setIsModalOpen(false);
   };
 
   const handleArtifactClick = async (artifact: Artifact) => {
@@ -244,65 +133,46 @@ const Documents = () => {
     <div className="content">
       <div className="toolbar">
         <div className="toolbar-main">
-          <button className="button" onClick={() => setIsFormOpen(true)} disabled={isLoading}>
+          <button className="button" onClick={() => setIsModalOpen(true)} disabled={isLoading}>
             <span className="button-icon">+</span>
             Add New Artifact
           </button>
-          <div className="toolbar-divider" />
-          <div className="sort-buttons">
-            <button 
-              className={`button secondary ${sortBy === 'date' ? 'active' : ''}`}
+          <div className="sort-controls">
+            <button
+              className={`sort-button ${sortBy === 'date' ? 'active' : ''}`}
               onClick={() => handleSort('date')}
-              disabled={isLoading}
             >
               Date {sortBy === 'date' && (sortOrder === 'asc' ? '↑' : '↓')}
             </button>
-            <button 
-              className={`button secondary ${sortBy === 'type' ? 'active' : ''}`}
+            <button
+              className={`sort-button ${sortBy === 'type' ? 'active' : ''}`}
               onClick={() => handleSort('type')}
-              disabled={isLoading}
             >
               Type {sortBy === 'type' && (sortOrder === 'asc' ? '↑' : '↓')}
             </button>
-            <button 
-              className={`button secondary ${sortBy === 'title' ? 'active' : ''}`}
+            <button
+              className={`sort-button ${sortBy === 'title' ? 'active' : ''}`}
               onClick={() => handleSort('title')}
-              disabled={isLoading}
             >
               Title {sortBy === 'title' && (sortOrder === 'asc' ? '↑' : '↓')}
             </button>
           </div>
         </div>
-        <div className="toolbar-meta">
-          Showing {startIndex + 1}-{Math.min(endIndex, sortedArtifacts.length)} of {sortedArtifacts.length} artifacts
-        </div>
       </div>
-      
+
       {isLoading ? (
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
-          <p>Loading artifacts...</p>
-        </div>
-      ) : sortedArtifacts.length === 0 ? (
-        <div className="no-artifacts">
-          <p>No artifacts found. Add your first artifact to get started!</p>
-        </div>
+        <div className="loading-spinner" />
       ) : (
         <>
-          <div className={`artifacts-grid ${viewMode}`}>
-            {currentArtifacts.map((artifact, index) => (
-              <div
+          <div className="artifacts-grid">
+            {currentArtifacts.map((artifact) => (
+              <ArtifactBox
                 key={artifact.id}
-                style={{ '--card-index': index } as React.CSSProperties}
-              >
-                <ArtifactBox
-                  artifact={artifact}
-                  onClick={handleArtifactClick}
-                />
-              </div>
+                artifact={artifact}
+                onClick={() => handleArtifactClick(artifact)}
+              />
             ))}
           </div>
-
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -312,8 +182,8 @@ const Documents = () => {
       )}
 
       <AddArtifactModal
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onArtifactCreated={handleArtifactCreated}
       />
     </div>

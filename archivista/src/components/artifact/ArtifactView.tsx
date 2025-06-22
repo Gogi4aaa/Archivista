@@ -67,125 +67,153 @@ const ArtifactView: React.FC<ArtifactViewProps> = ({ artifact }) => {
         </div>
       </div>
 
-      <div className="artifact-content">
-        <div className="artifact-main">
-          {artifact.description && (
-            <motion.section 
-              className="description"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <h2>About this Artifact</h2>
-              <p>{artifact.description}</p>
-            </motion.section>
-          )}
-
-          {hasPhysicalDetails && (
-            <motion.section 
-              className="physical-details"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h2>Physical Details</h2>
-              <div className="details-grid">
-                {hasDimensions && (
-                  <div className="detail-card">
-                    <div className="detail-icon">📏</div>
-                    <div className="detail-content">
-                      <label>Dimensions</label>
-                      <span>
-                        {artifact.height && `H: ${artifact.height}`}
-                        {artifact.width && ` W: ${artifact.width}`}
-                        {artifact.length && ` L: ${artifact.length}`}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {artifact.weight && (
-                  <div className="detail-card">
-                    <div className="detail-icon">⚖️</div>
-                    <div className="detail-content">
-                      <label>Weight</label>
-                      <span>{artifact.weight}</span>
-                    </div>
-                  </div>
-                )}
-                {artifact.material && (
-                  <div className="detail-card">
-                    <div className="detail-icon">🔨</div>
-                    <div className="detail-content">
-                      <label>Material</label>
-                      <span>{artifact.material}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </motion.section>
-          )}
-        </div>
-
-        <motion.div 
-          className="artifact-sidebar"
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          {(artifact.discoveryLocation || artifact.discoveryDate) && (
-            <section className="discovery-info">
-              <h3>Discovery Details</h3>
-              <div className="info-card">
-                {artifact.discoveryLocation && (
-                  <div className="info-group">
-                    <label>Location</label>
-                    <span>{artifact.discoveryLocation}</span>
-                  </div>
-                )}
-                {artifact.discoveryDate && (
-                  <div className="info-group">
-                    <label>Date Found</label>
-                    <span>{formatDate(artifact.discoveryDate)}</span>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {artifact.storageLocation && (
-            <section className="storage-info">
-              <h3>Current Location</h3>
-              <div className="info-card">
-                <div className="info-group">
-                  <label>Storage</label>
-                  <span>{artifact.storageLocation}</span>
+      <motion.div 
+        className="artifact-content"
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
+        <div className="content-wrapper">
+          <div className="artifact-main">
+            {artifact.description && (
+              <motion.section 
+                className="description"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="section-header">
+                  <h2>About this Artifact</h2>
                 </div>
-              </div>
-            </section>
-          )}
+                <div className="section-divider" />
+                <p>{artifact.description}</p>
+              </motion.section>
+            )}
 
-          <section className="metadata-info">
-            <h3>Record Details</h3>
-            <div className="info-card">
-              <div className="info-group">
-                <label>Created</label>
-                <div className="metadata-value">
-                  <span>{formatDate(artifact.createdAt)}</span>
-                  {artifact.creatorId && (
-                    <span className="by-user">by {artifact.creatorId}</span>
+            {hasPhysicalDetails && (
+              <motion.section 
+                className="physical-details"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="section-header">
+                  <h2>Physical Details</h2>
+                </div>
+                <div className="section-divider" />
+                <div className="details-grid">
+                  {hasDimensions && (
+                    <div className="detail-card">
+                      <div className="detail-icon">📏</div>
+                      <div className="detail-content">
+                        <label>Dimensions</label>
+                        <span>
+                          {artifact.height && `H: ${artifact.height}`}
+                          {artifact.width && ` W: ${artifact.width}`}
+                          {artifact.length && ` L: ${artifact.length}`}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {artifact.weight && (
+                    <div className="detail-card">
+                      <div className="detail-icon">⚖️</div>
+                      <div className="detail-content">
+                        <label>Weight</label>
+                        <span>{artifact.weight}</span>
+                      </div>
+                    </div>
+                  )}
+                  {artifact.material && (
+                    <div className="detail-card">
+                      <div className="detail-icon">🔨</div>
+                      <div className="detail-content">
+                        <label>Material</label>
+                        <span>{artifact.material}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.section>
+            )}
+          </div>
+
+          <motion.div 
+            className="artifact-sidebar"
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            {(artifact.discoveryLocation || artifact.discoveryDate) && (
+              <section className="discovery-info">
+                <div className="section-header">
+                  <h3>Discovery Details</h3>
+                </div>
+                <div className="section-divider" />
+                <div className="info-card">
+                  <div className="info-groups-container">
+                    {artifact.discoveryLocation && (
+                      <div className="info-group">
+                        <label>Location</label>
+                        <span>{artifact.discoveryLocation}</span>
+                      </div>
+                    )}
+                    {artifact.discoveryDate && (
+                      <div className="info-group">
+                        <label>Date Found</label>
+                        <span>{formatDate(artifact.discoveryDate)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {artifact.storageLocation && (
+              <section className="storage-info">
+                <div className="section-header">
+                  <h3>Current Location</h3>
+                </div>
+                <div className="section-divider" />
+                <div className="info-card">
+                  <div className="info-groups-container">
+                    <div className="info-group">
+                      <label>Storage</label>
+                      <span>{artifact.storageLocation}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            <section className="metadata-info">
+              <div className="section-header">
+                <h3>Record Details</h3>
+              </div>
+              <div className="section-divider" />
+              <div className="info-card">
+                <div className="info-groups-container">
+                  <div className="info-group">
+                    <label>Created</label>
+                    <div className="metadata-value">
+                      <span>{formatDate(artifact.createdAt)}</span>
+                      {artifact.creatorId && (
+                        <span className="by-user">by {artifact.creatorId}</span>
+                      )}
+                    </div>
+                  </div>
+                  {artifact.updatedAt && (
+                    <div className="info-group">
+                      <label>Last Modified</label>
+                      <span>{formatDate(artifact.updatedAt)}</span>
+                    </div>
                   )}
                 </div>
               </div>
-              {artifact.updatedAt && (
-                <div className="info-group">
-                  <label>Last Modified</label>
-                  <span>{formatDate(artifact.updatedAt)}</span>
-                </div>
-              )}
-            </div>
-          </section>
-        </motion.div>
-      </div>
+            </section>
+          </motion.div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 };
