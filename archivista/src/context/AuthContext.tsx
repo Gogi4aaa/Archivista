@@ -8,6 +8,13 @@ interface AuthContextType extends AuthState {
   updateUser: (updates: Partial<User>) => void;
 }
 
+class ValidationException extends Error {
+  constructor(public errors: ValidationError) {
+    super('Validation Error');
+    this.name = 'ValidationException';
+  }
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const validateCredentials = (credentials: LoginCredentials): ValidationError | null => {
@@ -51,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Validate credentials
       const validationErrors = validateCredentials(credentials);
       if (validationErrors) {
-        throw { type: 'VALIDATION_ERROR', errors: validationErrors };
+        throw new ValidationException(validationErrors);
       }
 
       // Make API call
@@ -71,7 +78,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: false,
         isLoading: false,
       });
-      throw error;
+      if (error instanceof ValidationException) {
+        throw error;
+      }
+      throw new Error(error.message || 'Login failed');
     }
   }, []);
 

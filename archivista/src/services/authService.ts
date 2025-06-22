@@ -12,6 +12,13 @@ interface AuthResponse {
   expiresIn: number;
 }
 
+class AuthError extends Error {
+  constructor(public type: string, message: string) {
+    super(message);
+    this.name = 'AuthError';
+  }
+}
+
 export const authService = {
   async login(credentials: LoginCredentials): Promise<User> {
     try {
@@ -40,12 +47,9 @@ export const authService = {
         }
 
         if (response.status === 401) {
-          throw { type: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
+          throw new AuthError('INVALID_CREDENTIALS', 'Invalid email or password');
         }
-        throw {
-          type: 'API_ERROR',
-          message: errorMessage
-        };
+        throw new AuthError('API_ERROR', errorMessage);
       }
 
       const data: AuthResponse = await response.json();
@@ -67,9 +71,12 @@ export const authService = {
       console.error('Login error:', {
         error,
         message: error.message,
-        type: error.type
+        type: error instanceof AuthError ? error.type : 'UNKNOWN'
       });
-      throw error;
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      throw new Error(error.message || 'An unexpected error occurred');
     }
   },
 

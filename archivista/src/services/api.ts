@@ -1,15 +1,16 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../config';
 import { authService } from './authService';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5075/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    'Accept': 'application/json'
   }
 });
 
-// Add auth token to requests
+// Request interceptor for adding auth token
 api.interceptors.request.use(
   (config) => {
     const token = authService.getToken();
@@ -23,7 +24,7 @@ api.interceptors.request.use(
   }
 );
 
-// Handle auth errors
+// Response interceptor for handling auth errors
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

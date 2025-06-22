@@ -9,25 +9,23 @@ import TopBar from './components/TopBar';
 
 // Page Components
 import Home from './components/pages/Home';
-import Documents from './components/pages/Documents';
+import Artifacts from './components/pages/Artifacts';
 import Settings from './components/pages/Settings';
 import Login from './components/pages/Login';
 import UserManagement from './components/pages/UserManagement';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { Toaster } from 'react-hot-toast';
-
-// Protected Route Component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return <>{children}</>;
-};
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppContent = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+
+  // Redirect authenticated users based on their role
+  const getDefaultRoute = () => {
+    if (!isAuthenticated) return '/login';
+    return user?.role === 'admin' ? '/' : '/artifacts';
+  };
 
   return (
     <div className="App">
@@ -35,31 +33,42 @@ const AppContent = () => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {isAuthenticated && <TopBar />}
         <Routes>
-          {/* Default route redirects to login if not authenticated, statistics if authenticated */}
-          <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          {/* Login route - redirects to statistics if already authenticated */}
-          <Route 
-            path="/login" 
-            element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} 
-          />
-          {/* Protected routes */}
-          <Route path="/documents" element={
-            <ProtectedRoute>
-              <Documents />
+          {/* Default route redirects based on role */}
+          <Route path="/" element={
+            <ProtectedRoute roles={['admin']}>
+              <Home />
             </ProtectedRoute>
           } />
+
+          {/* Login route - redirects to appropriate page if authenticated */}
+          <Route 
+            path="/login" 
+            element={isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Login />} 
+          />
+
+          {/* Artifacts page - accessible by all authenticated users */}
+          <Route path="/artifacts" element={
+            <ProtectedRoute>
+              <Artifacts />
+            </ProtectedRoute>
+          } />
+
+          {/* Settings page - accessible by all authenticated users */}
           <Route path="/settings" element={
             <ProtectedRoute>
               <Settings />
             </ProtectedRoute>
           } />
+
+          {/* Admin-only routes */}
           <Route path="/users" element={
-            <ProtectedRoute>
+            <ProtectedRoute roles={['admin']}>
               <UserManagement />
             </ProtectedRoute>
           } />
-          {/* Catch all route - redirects to login or statistics */}
-          <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} />
+
+          {/* Catch all route - redirects to appropriate page */}
+          <Route path="*" element={<Navigate to={getDefaultRoute()} replace />} />
         </Routes>
       </div>
     </div>

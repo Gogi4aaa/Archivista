@@ -3,20 +3,29 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
-const sidebarLinks = [
+// Define navigation items for different roles
+const adminLinks = [
   { to: '/', label: 'Statistics', icon: '📊' },
-  { to: '/documents', label: 'Documents', icon: '🏺' },
+  { to: '/artifacts', label: 'Artifacts', icon: '🏺' },
   { to: '/users', label: 'Users', icon: '👥' },
   { to: '/settings', label: 'Settings', icon: '⚙️' },
 ];
 
+const userLinks = [
+  { to: '/artifacts', label: 'Artifacts', icon: '🏺' },
+  { to: '/settings', label: 'Settings', icon: '⚙️' },
+];
+
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = () => {
     toast.success("Successfully logged out!")
     logout();
   };
+
+  // Select navigation items based on user role
+  const sidebarLinks = user?.role === 'admin' ? adminLinks : userLinks;
 
   return (
     <aside className="sidebar">
@@ -43,11 +52,15 @@ const Sidebar = () => {
           </NavLink>
         ))}
         </div>
+        <div className="user-info">
+          <span className="user-name">{user?.username}</span>
+          <span className="user-role">{user?.role}</span>
+        </div>
         <button 
           onClick={handleLogout}
           className="nav-link logout-button"
         >
-          Logout
+          <span style={{ marginRight: 12 }}>🚪</span> Logout
         </button>
       </nav>
     </aside>
