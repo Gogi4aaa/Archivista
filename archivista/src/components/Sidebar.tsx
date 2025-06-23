@@ -16,7 +16,11 @@ const userLinks = [
   { to: '/settings', label: 'Settings', icon: '⚙️' },
 ];
 
-const Sidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   const { logout, user } = useAuth();
 
   const handleLogout = () => {
@@ -28,7 +32,7 @@ const Sidebar = () => {
   const sidebarLinks = user?.role === 'admin' ? adminLinks : userLinks;
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
       <nav className="nav">
         <div className="logo-container">
           <img 
@@ -48,19 +52,17 @@ const Sidebar = () => {
             }
             end={link.to === '/'}
           >
-            <span style={{ marginRight: 12 }}>{link.icon}</span> {link.label}
+            <span style={{ marginRight: 12 }}>{link.icon}</span> 
+            <span className="nav-label">{link.label}</span>
           </NavLink>
         ))}
-        </div>
-        <div className="user-info">
-          <span className="user-name">{user?.username}</span>
-          <span className="user-role">{user?.role}</span>
         </div>
         <button 
           onClick={handleLogout}
           className="nav-link logout-button"
         >
-          <span style={{ marginRight: 12 }}>🚪</span> Logout
+          <span style={{ marginRight: 12 }}>🚪</span>
+          <span className="nav-label">Logout</span>
         </button>
       </nav>
     </aside>

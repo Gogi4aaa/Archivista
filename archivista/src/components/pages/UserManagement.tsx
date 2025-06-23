@@ -122,16 +122,17 @@ const UserManagement: React.FC = () => {
   return (
     <div className="content">
       <div style={{ width: '100%', maxWidth: '1200px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 600 }}>User Management</h1>
-          <button 
-            className="button" 
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            onClick={handleAddUser}
-          >
-            <FaUserPlus />
-            Add New User
-          </button>
+        <div className="toolbar">
+          <div className="toolbar-main">
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 600, color: '#fff', margin: 0 }}>User Management</h1>
+            <button 
+              className="button" 
+              onClick={handleAddUser}
+            >
+              <span className="button-icon"><FaUserPlus /></span>
+              Add New User
+            </button>
+          </div>
         </div>
 
         <div className="table-container">
@@ -181,17 +182,15 @@ const UserManagement: React.FC = () => {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="action-buttons">
                       <button 
-                        className="button small" 
-                        style={{ padding: '6px' }}
+                        className="button small icon-only" 
                         onClick={() => handleEditUser(user)}
                       >
                         <FaUserEdit />
                       </button>
                       <button 
-                        className="button small secondary" 
-                        style={{ padding: '6px' }}
+                        className="button small secondary icon-only" 
                         onClick={() => handleDeleteUser(user)}
                       >
                         <FaTrash />

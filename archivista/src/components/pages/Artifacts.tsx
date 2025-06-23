@@ -3,14 +3,17 @@ import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import ArtifactGrid from '../artifact/ArtifactGrid';
 import ArtifactView from '../artifact/ArtifactView';
+import AddArtifactModal from '../artifact/AddArtifactModal';
 import { Artifact } from '../../types/Artifact';
 import { API_BASE_URL } from '../../config';
 import axios from 'axios';
 import { authService } from '../../services/authService';
+
 const Artifacts: React.FC = () => {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -21,7 +24,6 @@ const Artifacts: React.FC = () => {
     try {
       const token = authService.getToken();
       setIsLoading(true);
-      // TODO: Replace with actual API call
       const response = await axios.get(`${API_BASE_URL}/artifact`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -38,6 +40,12 @@ const Artifacts: React.FC = () => {
 
   const handleArtifactClick = (artifact: Artifact) => {
     setSelectedArtifact(artifact);
+  };
+
+  const handleArtifactCreated = (newArtifact: Artifact) => {
+    setArtifacts(prev => [newArtifact, ...prev]);
+    setIsModalOpen(false);
+    toast.success('Artifact created successfully!');
   };
 
   if (isLoading) {
@@ -63,23 +71,19 @@ const Artifacts: React.FC = () => {
         </>
       ) : (
         <div style={{ width: '100%' }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            marginBottom: '24px',
-            padding: '0 24px'
-          }}>
-            <h1 style={{ fontSize: '1.8rem', fontWeight: 600, color: '#fff' }}>Artifacts</h1>
-            {user?.role === 'admin' && (
-              <button 
-                className="button"
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                onClick={() => {/* TODO: Implement add artifact */}}
-              >
-                <span>➕</span> Add New Artifact
-              </button>
-            )}
+          <div className="toolbar">
+            <div className="toolbar-main">
+              <h1 style={{ fontSize: '1.8rem', fontWeight: 600, color: '#fff', margin: 0 }}>Artifacts</h1>
+              {user?.role === 'admin' && (
+                <button 
+                  className="button"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  <span className="button-icon">+</span>
+                  Add New Artifact
+                </button>
+              )}
+            </div>
           </div>
 
           <ArtifactGrid 
@@ -88,6 +92,12 @@ const Artifacts: React.FC = () => {
           />
         </div>
       )}
+
+      <AddArtifactModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onArtifactCreated={handleArtifactCreated}
+      />
     </div>
   );
 };

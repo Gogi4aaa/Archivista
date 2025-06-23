@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import './styles/Login.css';
@@ -20,6 +20,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 const AppContent = () => {
   const { isAuthenticated, user } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Redirect authenticated users based on their role
   const getDefaultRoute = () => {
@@ -27,65 +28,76 @@ const AppContent = () => {
     return user?.role === 'admin' ? '/' : '/artifacts';
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="App">
-      {isAuthenticated && <Sidebar />}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        {isAuthenticated && <TopBar />}
-        <Routes>
-          {/* Default route redirects based on role */}
-          <Route path="/" element={
-            <ProtectedRoute roles={['admin']}>
-              <Home />
-            </ProtectedRoute>
-          } />
-
-          {/* Login route - redirects to appropriate page if authenticated */}
-          <Route 
-            path="/login" 
-            element={isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Login />} 
+      {isAuthenticated && <Sidebar isOpen={isSidebarOpen} />}
+      <div className="main-content">
+        {isAuthenticated && (
+          <TopBar 
+            isOpen={isSidebarOpen} 
+            onToggleSidebar={toggleSidebar} 
           />
+        )}
+        <div className="page-container">
+          <Routes>
+            {/* Default route redirects based on role */}
+            <Route path="/" element={
+              <ProtectedRoute roles={['admin']}>
+                <Home />
+              </ProtectedRoute>
+            } />
 
-          {/* Artifacts page - accessible by all authenticated users */}
-          <Route path="/artifacts" element={
-            <ProtectedRoute>
-              <Artifacts />
-            </ProtectedRoute>
-          } />
+            {/* Login route - redirects to appropriate page if authenticated */}
+            <Route 
+              path="/login" 
+              element={isAuthenticated ? <Navigate to={getDefaultRoute()} replace /> : <Login />} 
+            />
 
-          {/* Settings page - accessible by all authenticated users */}
-          <Route path="/settings" element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          } />
+            {/* Artifacts page - accessible by all authenticated users */}
+            <Route path="/artifacts" element={
+              <ProtectedRoute>
+                <Artifacts />
+              </ProtectedRoute>
+            } />
 
-          {/* Admin-only routes */}
-          <Route path="/users" element={
-            <ProtectedRoute roles={['admin']}>
-              <UserManagement />
-            </ProtectedRoute>
-          } />
+            {/* Settings page - accessible by all authenticated users */}
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
 
-          {/* Catch all route - redirects to appropriate page */}
-          <Route path="*" element={<Navigate to={getDefaultRoute()} replace />} />
-        </Routes>
+            {/* Admin-only routes */}
+            <Route path="/users" element={
+              <ProtectedRoute roles={['admin']}>
+                <UserManagement />
+              </ProtectedRoute>
+            } />
+
+            {/* Catch all route - redirects to appropriate page */}
+            <Route path="*" element={<Navigate to={getDefaultRoute()} replace />} />
+          </Routes>
+        </div>
       </div>
     </div>
   );
 };
 
-function App() {
+const App = () => {
   return (
-    <AuthProvider>
-      <SettingsProvider>
-        <Router>
+    <Router>
+      <AuthProvider>
+        <SettingsProvider>
           <AppContent />
-          <Toaster position="top-right" reverseOrder={false} />
-        </Router>
-      </SettingsProvider>
-    </AuthProvider>
+          <Toaster position="bottom-right" />
+        </SettingsProvider>
+      </AuthProvider>
+    </Router>
   );
-}
+};
 
 export default App;
