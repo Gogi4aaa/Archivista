@@ -5,18 +5,34 @@ import { authService } from './authService';
 const API_URL = 'http://localhost:5075/api'; // adjust this to match your API URL
 
 export interface CreateArtifactDto {
-  Name: string;
-  Description?: string;
-  DiscoveryLocation: string;
-  Period?: string;
-  Type?: string;
-  Material?: string;
-  Weight?: number;
-  Height?: number;
-  Width?: number;
-  Length?: number;
-  StorageLocation?: string;
+  title: string;
+  description?: string;
+  location: {
+    site: string;
+    coordinates?: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+  period?: string;
+  category: string[];
+  condition?: string;
   image?: File;
+}
+
+export interface UpdateArtifactDto {
+  title: string;
+  description?: string;
+  location: {
+    site: string;
+    coordinates?: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+  period?: string;
+  category: string[];
+  condition?: string;
 }
 
 export type { Artifact };
@@ -42,10 +58,21 @@ export const artifactService = {
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 401) {
-        // Handle unauthorized error
         throw new Error('Please login to view artifacts');
       }
       throw new Error('Failed to fetch artifacts');
+    }
+  },
+
+  getArtifactById: async (id: string): Promise<Artifact> => {
+    try {
+      const response = await api.get(`/artifact/${id}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Please login to view artifact details');
+      }
+      throw new Error('Failed to fetch artifact details');
     }
   },
 
@@ -100,6 +127,71 @@ export const artifactService = {
         throw new Error('Please login to create artifacts');
       }
       throw new Error('Failed to create artifact');
+    }
+  },
+
+  updateArtifact: async (id: string, artifact: UpdateArtifactDto): Promise<Artifact> => {
+    try {
+      const response = await api.put(`/artifact/${id}`, artifact);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Please login to update artifacts');
+      }
+      throw new Error('Failed to update artifact');
+    }
+  },
+
+  deleteArtifact: async (id: string): Promise<void> => {
+    try {
+      await api.delete(`/artifact/${id}`);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Please login to delete artifacts');
+      }
+      throw new Error('Failed to delete artifact');
+    }
+  },
+
+  searchArtifacts: async (term: string): Promise<Artifact[]> => {
+    try {
+      const response = await api.get(`/artifact/search`, {
+        params: { term }
+      });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Please login to search artifacts');
+      }
+      throw new Error('Failed to search artifacts');
+    }
+  },
+
+  getArtifactsByLocation: async (location: string): Promise<Artifact[]> => {
+    try {
+      const response = await api.get(`/artifact/location`, {
+        params: { location }
+      });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Please login to view artifacts by location');
+      }
+      throw new Error('Failed to fetch artifacts by location');
+    }
+  },
+
+  getArtifactsByDateRange: async (startDate: string, endDate: string): Promise<Artifact[]> => {
+    try {
+      const response = await api.get(`/artifact/daterange`, {
+        params: { startDate, endDate }
+      });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Please login to view artifacts by date range');
+      }
+      throw new Error('Failed to fetch artifacts by date range');
     }
   }
 }; 
