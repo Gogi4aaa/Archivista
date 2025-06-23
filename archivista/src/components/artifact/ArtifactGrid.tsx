@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Artifact } from '../../types/Artifact';
+import { artifactService } from '../../services/artifactService';
 import './ArtifactGrid.css';
 
 interface ArtifactGridProps {
@@ -8,32 +9,66 @@ interface ArtifactGridProps {
   onArtifactClick: (artifact: Artifact) => void;
 }
 
+interface ArtifactWithLoadedImage extends Artifact {
+  loadedImageUrl?: string;
+}
+
 const ArtifactGrid: React.FC<ArtifactGridProps> = ({ artifacts, onArtifactClick }) => {
+  const [loadedArtifacts, setLoadedArtifacts] = useState<ArtifactWithLoadedImage[]>([]);
   const [filters, setFilters] = useState({
-    period: '',
-    type: '',
     searchQuery: '',
+    period: '',
+    type: ''
   });
 
-  const [filteredArtifacts, setFilteredArtifacts] = useState(artifacts);
-
-  // Get unique periods and types for filter options
-  const periods = Array.from(new Set(artifacts.map(a => a.period))).filter(Boolean);
-  const types = Array.from(new Set(artifacts.map(a => a.type))).filter(Boolean);
-
+  // Load images for artifacts
   useEffect(() => {
-    const filtered = artifacts.filter(artifact => {
-      const matchesPeriod = !filters.period || artifact.period === filters.period;
-      const matchesType = !filters.type || artifact.type === filters.type;
-      const matchesSearch = !filters.searchQuery || 
-        artifact.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-        artifact.description?.toLowerCase().includes(filters.searchQuery.toLowerCase());
-      
-      return matchesPeriod && matchesType && matchesSearch;
-    });
+    const loadImages = async () => {
+      const artifactsWithImages = await Promise.all(
+        artifacts.map(async (artifact) => {
+          if (artifact.id && artifact.imageUrl) {
+            try {
+              const imageBlob = await artifactService.getArtifactImage(artifact.id);
+              const imageUrl = URL.createObjectURL(imageBlob);
+              return { ...artifact, loadedImageUrl: imageUrl };
+            } catch (error) {
+              console.error('Error loading image:', error);
+              return artifact;
+            }
+          }
+          return artifact;
+        })
+      );
+      setLoadedArtifacts(artifactsWithImages);
+    };
 
-    setFilteredArtifacts(filtered);
-  }, [artifacts, filters]);
+    loadImages();
+
+    // Cleanup URLs when component unmounts or artifacts change
+    return () => {
+      loadedArtifacts.forEach(artifact => {
+        if (artifact.loadedImageUrl) {
+          URL.revokeObjectURL(artifact.loadedImageUrl);
+        }
+      });
+    };
+  }, [artifacts]);
+
+  // Extract unique periods and types for filters
+  const periods = Array.from(new Set(artifacts.map(a => a.period).filter(Boolean)));
+  const types = Array.from(new Set(artifacts.map(a => a.type).filter(Boolean)));
+
+  // Filter artifacts based on search and filters
+  const filteredArtifacts = loadedArtifacts.filter(artifact => {
+    const matchesSearch = !filters.searchQuery || 
+      artifact.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
+      artifact.description?.toLowerCase().includes(filters.searchQuery.toLowerCase());
+
+    const matchesPeriod = !filters.period || artifact.period === filters.period;
+    const matchesType = !filters.type || artifact.type === filters.type;
+
+    return matchesSearch && matchesPeriod && matchesType;
+  });
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString(undefined, {
@@ -95,7 +130,7 @@ const ArtifactGrid: React.FC<ArtifactGridProps> = ({ artifacts, onArtifactClick 
             >
               <div className="artifact-card-image">
                 <img 
-                  src={artifact.imageUrl || '/noimage.png'} 
+                  src={artifact.loadedImageUrl || '/noimage.png'} 
                   alt={artifact.name}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
@@ -111,20 +146,33 @@ const ArtifactGrid: React.FC<ArtifactGridProps> = ({ artifacts, onArtifactClick 
               </div>
               <div className="artifact-card-content">
                 <h3>{artifact.name}</h3>
-                {artifact.description && (
-                  <p className="description">{artifact.description.slice(0, 120)}...</p>
-                )}
-                <div className="artifact-card-footer">
-                  <div className="location">
-                    {artifact.discoveryLocation && (
-                      <span title="Discovery Location">📍 {artifact.discoveryLocation}</span>
-                    )}
-                  </div>
-                  <div className="date">
-                    {artifact.discoveryDate && (
-                      <span title="Discovery Date">📅 {formatDate(artifact.discoveryDate)}</span>
-                    )}
-                  </div>
+                <div className="artifact-card-metadata">
+                  <span className="period">{artifact.period}</span>
+                  <span className="status">{artifact.type}</span>
+                </div>
+                <p className="artifact-card-description">
+                  {artifact.description?.slice(0, 100)}
+                  {artifact.description && artifact.description.length > 100 ? '...' : ''}
+                </p>
+              </div>
+              <div className="artifact-card-footer">
+                <div className="artifact-card-tags">
+                  {artifact.type && (
+                    <span className="category-badge">{artifact.type}</span>
+                  )}
+                  {artifact.material && (
+                    <span className="category-badge">{artifact.material}</span>
+                  )}
+                </div>
+                <div className="location">
+                  {artifact.discoveryLocation && (
+                    <span title="Discovery Location">📍 {artifact.discoveryLocation}</span>
+                  )}
+                </div>
+                <div className="date">
+                  {artifact.discoveryDate && (
+                    <span title="Discovery Date">📅 {formatDate(artifact.discoveryDate)}</span>
+                  )}
                 </div>
               </div>
             </motion.div>

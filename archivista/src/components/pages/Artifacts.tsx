@@ -8,6 +8,7 @@ import { Artifact } from '../../types/Artifact';
 import { API_BASE_URL } from '../../config';
 import axios from 'axios';
 import { authService } from '../../services/authService';
+import { artifactService } from '../../services/artifactService';
 
 const Artifacts: React.FC = () => {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
@@ -38,9 +39,29 @@ const Artifacts: React.FC = () => {
     }
   };
 
-  const handleArtifactClick = (artifact: Artifact) => {
-    setSelectedArtifact(artifact);
+  const handleArtifactClick = async (artifact: Artifact) => {
+    if (artifact.id && artifact.imageUrl) {
+      try {
+        const imageBlob = await artifactService.getArtifactImage(artifact.id);
+        const imageUrl = URL.createObjectURL(imageBlob);
+        setSelectedArtifact({ ...artifact, loadedImageUrl: imageUrl });
+      } catch (error) {
+        console.error('Error loading image:', error);
+        setSelectedArtifact(artifact);
+      }
+    } else {
+      setSelectedArtifact(artifact);
+    }
   };
+
+  // Cleanup image URLs when component unmounts or artifact changes
+  useEffect(() => {
+    return () => {
+      if (selectedArtifact?.loadedImageUrl) {
+        URL.revokeObjectURL(selectedArtifact.loadedImageUrl);
+      }
+    };
+  }, [selectedArtifact]);
 
   const handleArtifactCreated = (newArtifact: Artifact) => {
     setArtifacts(prev => [newArtifact, ...prev]);
