@@ -25,7 +25,7 @@ const AppContent = () => {
   // Redirect authenticated users based on their role
   const getDefaultRoute = () => {
     if (!isAuthenticated) return '/login';
-    return user?.role === 'admin' ? '/' : '/artifacts';
+    return '/';
   };
 
   const toggleSidebar = () => {
@@ -46,7 +46,7 @@ const AppContent = () => {
           <Routes>
             {/* Default route redirects based on role */}
             <Route path="/" element={
-              <ProtectedRoute roles={['admin']}>
+              <ProtectedRoute>
                 <Home />
               </ProtectedRoute>
             } />

@@ -149,21 +149,11 @@ const Home = () => {
     },
   };
 
-  if (!user || user.role !== 'admin') {
-    return (
-      <div className="content">
-        <h1>Access Denied</h1>
-        <p>You do not have permission to view this page.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="content" style={{ padding: '24px', maxWidth: '100%' }}>
       <div style={{ 
         maxWidth: '1400px', 
         margin: '0 auto',
-        width: '100%',
         padding: '0 16px'
       }}>
         <h1 style={{ 

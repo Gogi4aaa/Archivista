@@ -12,6 +12,7 @@ const adminLinks = [
 ];
 
 const userLinks = [
+  { to: '/', label: 'Statistics', icon: '📊' },
   { to: '/artifacts', label: 'Artifacts', icon: '🏺' },
   { to: '/settings', label: 'Settings', icon: '⚙️' },
 ];
