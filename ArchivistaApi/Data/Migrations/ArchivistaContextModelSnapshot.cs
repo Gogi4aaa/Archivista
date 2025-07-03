@@ -49,6 +49,13 @@ namespace ArchivistaApi.Migrations
                     b.Property<decimal?>("Height")
                         .HasColumnType("numeric");
 
+                    b.Property<string>("ImageContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<byte[]>("ImageData")
+                        .HasColumnType("bytea");
+
                     b.Property<decimal?>("Length")
                         .HasColumnType("numeric");
 
@@ -64,9 +71,6 @@ namespace ArchivistaApi.Migrations
                     b.Property<string>("Period")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("text");
 
                     b.Property<string>("StorageLocation")
                         .HasMaxLength(500)

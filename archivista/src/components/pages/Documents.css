@@ -1,0 +1,307 @@
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  opacity: 0;
+  transform: scale(0.95);
+  animation: fadeScaleIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.toolbar {
+  background: #1a1d24;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toolbar-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sort-button {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.sort-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sort-button.active {
+  background: rgba(63, 203, 243, 0.15);
+  border-color: rgba(63, 203, 243, 0.3);
+  color: #3fcbf3;
+}
+
+.artifacts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+  padding: 24px;
+  width: 100%;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.artifact-card {
+  background: #1a1d24;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+  animation: cardAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  will-change: transform;
+}
+
+.artifact-card:nth-child(n) {
+  animation-delay: calc(0.1s * var(--card-index, 0));
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.artifact-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+.artifact-card-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.artifact-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.artifact-card:hover .artifact-card-image img {
+  transform: scale(1.05);
+}
+
+.artifact-card-content {
+  padding: 20px;
+}
+
+.artifact-card-content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.artifact-card-metadata {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.artifact-card-metadata span {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.artifact-card-description {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.artifact-card-footer {
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.artifact-card-tags {
+  display: flex;
+  gap: 8px;
+}
+
+.artifact-card-tags .category-badge {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+}
+
+.no-artifacts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 2rem;
+  background: var(--background-secondary);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.no-artifacts p {
+  font-size: 1.1rem;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-group.half {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="date"] {
+  padding: 8px 12px;
+  color: #fff;
+  background: #23262f;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Small screen adjustments */
+@media (max-width: 768px) {
+  .toolbar {
+    margin: 16px;
+    padding: 16px;
+  }
+
+  .toolbar-main {
+    gap: 12px;
+  }
+
+  .sort-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sort-button {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.8rem;
+  }
+
+  .artifacts-grid {
+    padding: 16px;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    margin: 12px;
+    padding: 12px;
+  }
+
+  .artifacts-grid {
+    padding: 12px;
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Handle very small screens */
+@media (max-width: 360px) {
+  .modal-overlay {
+    padding: 8px;
+  }
+
+  .modal-content {
+    padding: 12px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+} 

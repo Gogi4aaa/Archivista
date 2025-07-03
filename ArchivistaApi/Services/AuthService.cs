@@ -91,6 +91,7 @@ namespace ArchivistaApi.Services
             return new AuthResponse
             {
                 Token = token,
+                UserId = user.Id.ToString(),
                 Username = user.Username,
                 Email = user.Email,
                 Roles = roles,

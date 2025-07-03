@@ -40,6 +40,7 @@ namespace ArchivistaApi.Services
             // Register services
             services.AddScoped<JwtService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IArtifactService, ArtifactService>();
 
             return services;
         }
